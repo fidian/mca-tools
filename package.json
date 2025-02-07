@@ -1,0 +1,25 @@
+{
+    "name": "mca-json",
+    "version": "0.0.0",
+    "description": "Convert Minecraft MCA into JSON and back, or modify directly in memory.",
+    "bin": {
+        "mca2json": "dist/bin/mca2json.mjs"
+    },
+    "scripts": {
+        "build": "rm -rf dist && tsc",
+        "reinstall": "rm -rf node_modules package-lock.json && npm install"
+    },
+    "type": "module",
+    "main": "dist/index.mjs",
+    "dependencies": {
+        "@types/node": "^22.12.0",
+        "debug": "^4.4.0",
+        "get-stdin": "^9.0.0",
+        "neodoc": "^2.0.2",
+        "pako": "^2.1.0"
+    },
+    "devDependencies": {
+        "@types/pako": "^2.0.3",
+        "typescript": "^5.7.3"
+    }
+}
