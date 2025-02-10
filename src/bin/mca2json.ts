@@ -86,12 +86,7 @@ readInput(args['<input>'])
             chunks = chunks.filter((chunk) => wanted.has(chunk.chunkKey()));
         }
 
-        let jsonObjects = chunks.map((chunk) => {
-            const [name, json] = chunk.toJson();
-            json.name = name;
-
-            return json;
-        });
+        let jsonObjects = chunks.map((chunk) => chunk.toObject());
 
         if (args['--compact']) {
             return JSON.stringify(jsonObjects);

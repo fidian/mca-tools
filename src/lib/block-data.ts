@@ -1,8 +1,8 @@
 import { BitData } from './bit-data';
 import { Coords3d } from '../types/coords';
-import { NbtCompound } from '../tags/nbt-compound';
-import { NbtList } from '../tags/nbt-list';
-import { NbtLongArray } from '../tags/nbt-long-array';
+import { NbtCompound } from '../nbt/nbt-compound';
+import { NbtList } from '../nbt/nbt-list';
+import { NbtLongArray } from '../nbt/nbt-long-array';
 
 const BLOCKS_PER_CHUNK = 16 * 16 * 16;
 
@@ -142,7 +142,7 @@ export class BlockData {
         return [x, y, z];
     }
 
-    toJson() {
+    toArray() {
         let errors: any[] = [];
 
         const result = this.blocks.map((block, index) => {

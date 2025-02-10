@@ -1,7 +1,7 @@
 import { BinaryData } from '../lib/binary-data';
 import { debugLog, debugNesting } from '../lib/debug';
+import { Nbt, NbtTagType } from './nbt';
 import { NbtBase } from './nbt-base';
-import { getTag, NbtTagType } from '../lib/nbt-parser';
 
 export class NbtCompound extends NbtBase<NbtBase<any>[]> {
     static fromBinaryData<T>(bd: BinaryData, name?: string): NbtCompound {
@@ -11,19 +11,23 @@ export class NbtCompound extends NbtBase<NbtBase<any>[]> {
 
         // Careful - this does not store the END tag
         debugNesting(1);
-        let tag = getTag(bd);
+        let tag = Nbt.getTag(bd);
         debugNesting(-1);
         debugLog(`COMPOUND, name ${name}, tag ${tag.type} was retrieved`);
 
         while (tag && tag.type !== NbtTagType.END) {
             data.push(tag);
             debugNesting(1);
-            tag = getTag(bd);
+            tag = Nbt.getTag(bd);
             debugNesting(-1);
             debugLog(`COMPOUND, name ${name}, tag ${tag.type} was retrieved`);
         }
 
-        return new NbtCompound(NbtTagType.COMPOUND, name, data);
+        return new NbtCompound(data, name);
+    }
+
+    constructor(data: NbtBase<any>[], name?: string) {
+        super(NbtTagType.COMPOUND, data, name);
     }
 
     override findChild<RESULT extends NbtBase<any>>(path: string) {
@@ -50,17 +54,17 @@ export class NbtCompound extends NbtBase<NbtBase<any>[]> {
         return true;
     }
 
-    toJson() {
+    toObject() {
         const compound: Record<string, any> = {};
 
         for (const item of this.data) {
-            const [name, json] = item.toJson();
+            const name = item.name;
 
             if (compound[name]) {
                 console.error('Corrupt chunk - duplicate key found', name);
             }
 
-            compound[name] = json;
+            compound[name] = item.toObject();
         }
 
         return [
@@ -70,5 +74,16 @@ export class NbtCompound extends NbtBase<NbtBase<any>[]> {
                 compound,
             },
         ];
+    }
+
+    toSnbt() {
+        const compound: string[] = [];
+
+        for (const item of this.data) {
+            const itemSnbt = item.toSnbt();
+            compound.push(`${item.name}:${itemSnbt}`);
+        }
+
+        return `{${compound.join(',')}}`;
     }
 }

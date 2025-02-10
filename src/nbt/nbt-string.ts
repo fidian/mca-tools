@@ -1,7 +1,7 @@
 import { BinaryData } from '../lib/binary-data';
 import { debugLog } from '../lib/debug';
 import { NbtBase } from './nbt-base';
-import { NbtTagType } from '../lib/nbt-parser';
+import { NbtTagType } from './nbt';
 
 export class NbtString extends NbtBase<string> {
     static fromBinaryData(bd: BinaryData, name?: string): NbtString {
@@ -10,16 +10,22 @@ export class NbtString extends NbtBase<string> {
         const data = bd.getString(length);
         debugLog(`STRING, name ${name}, length ${length}, data ${data}`);
 
-        return new NbtString(NbtTagType.STRING, name, data);
+        return new NbtString(data, name);
     }
 
-    toJson() {
-        return [
-            this.name,
-            {
-                type: this.type,
-                string: this.data,
-            },
-        ];
+    constructor(data: string, name?: string) {
+        super(NbtTagType.STRING, data, name);
+    }
+
+    toObject() {
+        return {
+            type: this.type,
+            string: this.data,
+        };
+    }
+
+    toSnbt() {
+        // This always works but doesn't always produce the shortest string
+        return JSON.stringify(this.data);
     }
 }

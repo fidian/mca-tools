@@ -1,4 +1,4 @@
-import { NbtLongArray } from '../tags/nbt-long-array';
+import { NbtLongArray } from '../nbt/nbt-long-array';
 
 // At most, we will have 7 bits to mask
 const MASK = [0, 1, 3, 7, 15, 31, 63, 127];
@@ -10,8 +10,10 @@ export class BitData {
         let position = 0;
 
         for (const value of tag.data) {
-            // Do not use little-endian here
-            view.setBigInt64(position, value);
+            // Convert back to a byte stream. The source comes from
+            // NbtLongArray.fromBinaryData(). Make sure the endianness is
+            // correct and matches the reader.
+            view.setBigInt64(position, value, true);
             position += 8;
         }
 

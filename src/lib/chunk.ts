@@ -8,17 +8,19 @@
 
 import { BlockData } from './block-data';
 import { Coords2d, Coords3d } from '../types/coords';
-import { NbtBase } from '../tags/nbt-base';
-import { NbtCompound } from '../tags/nbt-compound';
-import { NbtInt } from '../tags/nbt-int';
-import { NbtList } from '../tags/nbt-list';
-import { NbtLong } from '../tags/nbt-long';
-import { NbtLongArray } from '../tags/nbt-long-array';
-import { NbtString } from '../tags/nbt-string';
-import { NbtTagType } from './nbt-parser';
+import { NbtBase } from '../nbt/nbt-base';
+import { NbtCompound } from '../nbt/nbt-compound';
+import { NbtInt } from '../nbt/nbt-int';
+import { NbtList } from '../nbt/nbt-list';
+import { NbtLong } from '../nbt/nbt-long';
+import { NbtLongArray } from '../nbt/nbt-long-array';
+import { NbtString } from '../nbt/nbt-string';
+import { NbtTagType } from '../nbt/nbt';
+import { toBlock } from '../blocks/to-block';
 
 export class Chunk {
     private dataVersion: number;
+    private parsedSections = new Map<NbtCompound, BlockData>();
     private rootNbt: NbtCompound;
 
     /**
@@ -92,6 +94,49 @@ export class Chunk {
     }
 
     /**
+     * Returns an instance of a block at a given location using world
+     * coordinates.
+     */
+    getBlock(coords: Coords3d): BlockGeneric {
+        const sectionY = Math.floor(coords[1] / 16);
+        const sectionsTag = this.sectionsTag();
+
+        if (!sectionsTag) {
+            throw new Error('Invalid chunk - no sections found');
+        }
+
+        const section = sectionsTag.data.find(
+            (section) => this.sectionY(section) === sectionY
+        );
+
+        if (!section) {
+            throw new Error('Block not found in any sections');
+        }
+
+        const blockData = this.parseSection(section);
+        const [xWorld, zWorld] = this.worldCoordinates() || [0, 0];
+        const xChunk = coords[0] - xWorld;
+        const zChunk = coords[2] - zWorld;
+
+        if (xChunk < 0 || xChunk > 15) {
+            throw new Error('X coordinate out of bounds');
+        }
+
+        if (zChunk < 0 || zChunk > 15) {
+            throw new Error('Z coordinate out of bounds');
+        }
+
+        const index = blockData.chunkCoordinatesToIndex([
+            xChunk,
+            coords[1] % 16,
+            zChunk,
+        ]);
+        const name = blockData.getBlockByIndex(index);
+
+        return toBlock(name, coords, this.blockEntityData(coords));
+    }
+
+    /**
      * Finds all blocks by a given ID. Provides [X, Y, Z] real-world coordinates.
      */
     findBlocksById(id: string): Coords3d[] {
@@ -115,18 +160,7 @@ export class Chunk {
                 return [];
             }
 
-            const blockStates = this.sectionBlockStates(section);
-
-            if (blockStates === undefined && palette.data.length !== 1) {
-                // Invalid chunk
-                throw new Error('Invalid chunk');
-            }
-
-            const blockData = BlockData.fromPaletteBlockStates(
-                this.dataVersion,
-                palette,
-                blockStates
-            );
+            const blockData = this.parseSection(section);
 
             return blockData.findBlocksById(id).map((index): Coords3d => {
                 const chunkCoordinates =
@@ -145,40 +179,19 @@ export class Chunk {
      * See how long the chunk has been inhabited. This number increases by 1
      * for each game tick, which is 20 times per second when a player is
      * nearby. It can also advance slowly when players are farther away.
+     *
+     * On newly created chunks, this value does not match what is expected. Use
+     * this with caution.
      */
     inhabitedTime(): bigint | undefined {
         return this.rootNbt.findChild<NbtLong>('InhabitedTime')?.data;
     }
 
     /**
-     * Gets a sign's text.
-     */
-    signText(coords: Coords3d) {
-        const tag = this.blockEntityData(coords);
-
-        if (tag) {
-            const front = tag.findChild<NbtList<NbtString>>(
-                'front_text/messages'
-            );
-            const back =
-                tag.findChild<NbtList<NbtString>>('back_text/messages');
-
-            if (front && back) {
-                return {
-                    front: front.data.map((tag) => tag.data),
-                    back: back.data.map((tag) => tag.data),
-                };
-            }
-        }
-
-        return;
-    }
-
-    /**
      * Converts the chunk data to a JSON object.
      */
-    toJson(): any {
-        return this.rootNbt.toJson();
+    toObject(): any {
+        return this.rootNbt.toObject();
     }
 
     /**
@@ -260,6 +273,38 @@ export class Chunk {
 
             return name?.data ?? '';
         });
+    }
+
+    /**
+     * Parses a section tag into BlockData.
+     *
+     * Uses a cached version if available;
+     */
+    private parseSection(section: NbtCompound): BlockData {
+        if (this.parsedSections.has(section)) {
+            return this.parsedSections.get(section)!;
+        }
+
+        const palette = this.sectionPalette(section);
+
+        if (!palette) {
+            throw new Error('Invalid chunk section - no palette found');
+        }
+
+        const blockStates = this.sectionBlockStates(section);
+
+        if (!blockStates) {
+            throw new Error('Invalid chunk section - no block states found');
+        }
+
+        const blockData = BlockData.fromPaletteBlockStates(
+            this.dataVersion,
+            palette,
+            blockStates
+        );
+        this.parsedSections.set(section, blockData);
+
+        return blockData;
     }
 
     /**

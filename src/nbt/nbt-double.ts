@@ -1,7 +1,7 @@
 import { BinaryData } from '../lib/binary-data';
 import { debugLog } from '../lib/debug';
 import { NbtBase } from './nbt-base';
-import { NbtTagType } from '../lib/nbt-parser';
+import { NbtTagType } from './nbt';
 
 export class NbtDouble extends NbtBase<number> {
     static fromBinaryData(bd: BinaryData, name?: string): NbtDouble {
@@ -9,16 +9,21 @@ export class NbtDouble extends NbtBase<number> {
         const data = bd.getDouble();
         debugLog(`DOUBLE, name ${name}, data ${data}`);
 
-        return new NbtDouble(NbtTagType.DOUBLE, name, data);
+        return new NbtDouble(data, name);
     }
 
-    toJson() {
-        return [
-            this.name,
-            {
-                type: this.type,
-                double: this.data,
-            },
-        ];
+    constructor(data: number, name?: string) {
+        super(NbtTagType.DOUBLE, data, name);
+    }
+
+    toObject() {
+        return {
+            type: this.type,
+            double: this.data,
+        };
+    }
+
+    toSnbt() {
+        return `${this.data}d`;
     }
 }

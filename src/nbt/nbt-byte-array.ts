@@ -1,7 +1,7 @@
 import { BinaryData } from '../lib/binary-data';
 import { debugLog } from '../lib/debug';
 import { NbtBase } from './nbt-base';
-import { NbtTagType } from '../lib/nbt-parser';
+import { NbtTagType } from './nbt';
 
 export class NbtByteArray extends NbtBase<number[]> {
     static fromBinaryData(bd: BinaryData, name?: string): NbtByteArray {
@@ -16,16 +16,21 @@ export class NbtByteArray extends NbtBase<number[]> {
 
         debugLog(`BYTE_ARRAY, data ${data}`);
 
-        return new NbtByteArray(NbtTagType.BYTE_ARRAY, name, data);
+        return new NbtByteArray(data, name);
     }
 
-    toJson() {
-        return [
-            this.name,
-            {
-                type: this.type,
-                byteArray: this.data,
-            },
-        ];
+    constructor(data: number[], name?: string) {
+        super(NbtTagType.BYTE_ARRAY, data, name);
+    }
+
+    toObject() {
+        return {
+            type: this.type,
+            byteArray: this.data,
+        };
+    }
+
+    toSnbt() {
+        return `[B;${this.data.map((v) => `${v}b`).join(',')}]`;
     }
 }

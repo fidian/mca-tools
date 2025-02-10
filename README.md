@@ -87,14 +87,19 @@ Returns an array with the X and Z coordinates. The chunk's coordinates are the `
 Returns an array. Each element in the array is another array of the X, Y, and Z coordinates of blocks. The coordinates are real-world coordinates. This method will need to unpack the block list, so it will first use a palette to see if the decompression and the lengthy scan can be avoided.
 
 
-#### `chunk.signText(coords: Coords3d): { front: string, back: string } | undefined`
+#### `chunk.getBlock(coords: Coords3d): GenericBlock`
 
-Gets a sign's text, both the front and back sides. If the entity data is not found or is not for a sign, this will return `undefined`.
+Returns a block class that represents the block at the given coordinates. For known blocks, there are additional methods. See "Block Classes" for further information.
 
 
-#### `chunk.toJson(): object`
+#### `chunk.inhabitedTime(): bigint | undefined`
 
-Converts the internal NBT structure to a JSON version.
+Shows the number of ticks processed in the chunk. When the player is nearby, this increases at 20 ticks per second. When the player is farther away, the tick count could advance slower. Does not increment when the chunk isn't loaded.
+
+
+#### `chunk.toObject(): object`
+
+Converts the internal NBT structure to an object literal, which can be serialized properly with `JSON.stringify()`.
 
 
 #### `chunk.uniqueBlockNames(): Set<string>`
@@ -107,14 +112,89 @@ Returns a list of all unique block names within a given chunk.
 Returns an array with the X and Z real-world coordinates. The chunk will span from X to X+15 (going East) and from Z to Z+15 (going South). The chunk is the entire vertical column of the world.
 
 
-### `nbtParser(data: ArrayBufferLike): NbtBase`
+### Block Classes
 
-Parses NBT data. Returns one of the NBT classes below, depending on the tag's type. This does *not* deal with compressed data. It's the responsibility of the container (Anvil) to decompress the data stream before passing it to this parser.
+All blocks will inherit from GenericBlock. Other types of blocks are detected by their id (the string name that is given). Below are the patterns and the type of block that will be produced if that filter matches.
 
+* `minecraft:*_sign` - `SignBlock`
+
+
+### `genericBlock.coords: Coords3d`
+
+The world coordinates of the block.
+
+
+#### `genericBlock.entityData: NbtCompound | undefined`
+
+The NBT entity data associated with this block. If there is none, this is left `undefined`.
+
+
+#### `genericBlock.id: string`
+
+The ID of the block.
+
+
+#### `signBlock.signText(): SignText | undefined`
+
+Gets a sign's text, both the front and back sides. Signs store their data as SNBT, which is a shortened, string-based NBT storage system. This method extracts just the text.
+
+```
+interface SignText {
+    front: [string, string, string, string], // Always there
+    back?: [string, string, string, string], // 1.20+
+}
+```
 
 ### NBT Classes
 
 There are several NBT classes that could be retrieved when you want direct access to the chunk's data. They all have a `.toJson()` method that will return an array with the name of the tag as the first element and the tag's data as the second. This is used to facilitate easier transforms into JSON.
+
+
+#### `Nbt.fromBuffer(data: ArrayBufferLike): NbtBase<any>`
+
+Parses NBT data. Returns one of the NBT classes below, depending on the tag's type. This does *not* deal with compressed data. It's the responsibility of the container (Anvil) to decompress the data stream before passing it to this parser.
+
+
+#### `Nbt.fromSnbt(snbt: string): NbtBase<any>`
+
+Parses SNBT data. Returns the hydrated NBT classes from the string form.
+
+
+#### `Nbt.getTag(binaryData: BinaryData): NbtBase<any>`
+
+Reads binary data from the `BinaryData` instance to determine the type, then calls the appropriate reader to provide the NBT tag.
+
+
+#### `NbtBase.readName(binaryData: BinaryData): string`
+
+Reads the name portion from a tag. Included in most tags.
+
+
+#### `nbtBase.findChild(path: string): NbtBase<any> | undefined`
+
+Finds a child by looking for exact string matches on names. Children can also be matched by using "/" as a separator, such as "Level/sections".
+
+Only works on `NbtList` and `NbtCompound` tags. On all others, this will return `undefined`.
+
+
+#### `nbtBase.isCompound(name: string): boolean`
+
+Checks if this is a compound tag. If `name` is also given, this checks to see if the compound tag's name also exactly matches. If either condition is not met, this returns `false`.
+
+
+#### `nbtBase.isList(subtype: NbtTagType): boolean`
+
+Checks if the tag is a list. If `subtype` is also given, this checks to see if the list tag's subtype also exactly matches. If either condition is not met, this returns `false`.
+
+
+#### `nbtBase.toObject(): any`
+
+Returns a plain object form of the tag. If this is a compound or list, then all children are included as well.
+
+
+#### `nbtBase.toSnbt(): string`
+
+Converts the tag to SNBT. The conversion will write out into a standard form, not necessarily matching what was parsed. For instance, the byte value "true" would be changed to "1". Strings will all use double quotes. Other minor changes, but the output will be valid SNBT.
 
 
 ## Additional Notes

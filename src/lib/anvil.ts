@@ -1,7 +1,7 @@
 import { BinaryData } from './binary-data';
 import { Chunk } from './chunk';
 import { inflate } from 'pako';
-import { nbtParser } from './nbt-parser';
+import { Nbt } from '../nbt/nbt';
 
 type LocationEntry = {
     offset: number; // 3 bytes
@@ -41,7 +41,7 @@ export class Anvil {
         const chunks = this.getLocationEntries()
             .filter((x) => x.sectorCount > 0)
             .map((offset) => {
-                const nbt = nbtParser(this.getChunkData(offset.offset));
+                const nbt = Nbt.fromBuffer(this.getChunkData(offset.offset));
 
                 return new Chunk(nbt);
             });

@@ -1,5 +1,5 @@
 import { BinaryData } from '../lib/binary-data';
-import { NbtTagType } from '../lib/nbt-parser';
+import { NbtTagType } from './nbt';
 
 export abstract class NbtBase<T> {
     static readName(bd: BinaryData) {
@@ -10,8 +10,8 @@ export abstract class NbtBase<T> {
 
     constructor(
         public type: NbtTagType,
-        public name: string,
-        public data: T
+        public data: T,
+        public name = '',
     ) {}
 
     /**
@@ -24,13 +24,15 @@ export abstract class NbtBase<T> {
         return;
     }
 
-    isCompound(_name: string): boolean {
+    isCompound(_name?: string): boolean {
         return false;
     }
 
-    isList(_subType: NbtTagType): boolean {
+    isList(_subtype?: NbtTagType): boolean {
         return false;
     }
 
-    abstract toJson(): any;
+    abstract toObject(): any;
+
+    abstract toSnbt(): string;
 }

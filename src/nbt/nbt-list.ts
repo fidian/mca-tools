@@ -1,6 +1,6 @@
 import { BinaryData } from '../lib/binary-data';
 import { debugLog, debugNesting } from '../lib/debug';
-import { fromBinaryData, NbtTagType } from '../lib/nbt-parser';
+import { fromBinaryData, NbtTagType } from './nbt';
 import { NbtBase } from './nbt-base';
 
 export class NbtList<T extends NbtBase<any>> extends NbtBase<T[]> {
@@ -9,15 +9,15 @@ export class NbtList<T extends NbtBase<any>> extends NbtBase<T[]> {
         name?: string
     ): NbtList<SOURCE> {
         name ??= NbtList.readName(bd);
-        const subType = bd.getByte();
+        const subtype = bd.getByte();
         const length = bd.getInt();
         const data: SOURCE[] = [];
-        debugLog(`LIST, name ${name}, subType ${subType}, length ${length}`);
-        const reader = fromBinaryData[subType];
+        debugLog(`LIST, name ${name}, subtype ${subtype}, length ${length}`);
+        const reader = fromBinaryData[subtype];
         debugNesting(1);
 
         if (!reader) {
-            throw new Error(`Invalid NBT tag type ${subType} for list tag`);
+            throw new Error(`Invalid NBT tag type ${subtype} for list tag`);
         }
 
         while (data.length < length) {
@@ -28,25 +28,24 @@ export class NbtList<T extends NbtBase<any>> extends NbtBase<T[]> {
         debugNesting(-1);
         debugLog(`LIST, name ${name}, element count ${data.length}`);
 
-        return new NbtList<SOURCE>(NbtTagType.LIST, name, data, subType);
+        return new NbtList<SOURCE>(data, subtype, name);
     }
 
-    subType: NbtTagType;
+    subtype: NbtTagType;
 
     constructor(
-        type: NbtTagType,
-        name: string,
         data: T[],
-        subType: NbtTagType
+        subtype: NbtTagType,
+        name?: string,
     ) {
-        super(type, name, data);
-        this.subType = subType;
+        super(NbtTagType.LIST, data, name);
+        this.subtype = subtype;
     }
 
     override findChild<RESULT extends NbtBase<any>>(
         path: string
     ): RESULT | undefined {
-        if (this.subType !== NbtTagType.COMPOUND) {
+        if (this.subtype !== NbtTagType.COMPOUND) {
             return;
         }
 
@@ -76,22 +75,23 @@ export class NbtList<T extends NbtBase<any>> extends NbtBase<T[]> {
         return result as unknown as RESULT;
     }
 
-    override isList(subType?: NbtTagType) {
-        if (subType !== undefined && this.subType !== subType) {
+    override isList(subtype?: NbtTagType) {
+        if (subtype !== undefined && this.subtype !== subtype) {
             return false;
         }
 
         return true;
     }
 
-    toJson() {
-        return [
-            this.name,
-            {
-                type: this.type,
-                subType: this.subType,
-                list: this.data.map((v) => v.toJson()),
-            },
-        ];
+    toObject() {
+        return {
+            type: this.type,
+            subtype: this.subtype,
+            list: this.data.map((v) => v.toObject()),
+        };
+    }
+
+    toSnbt() {
+        return this.data.map((v) => v.toSnbt()).join(',');
     }
 }
