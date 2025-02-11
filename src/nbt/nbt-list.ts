@@ -1,7 +1,10 @@
+import debug from 'debug';
 import { BinaryData } from '../lib/binary-data';
-import { debugLog, debugNesting } from '../lib/debug';
 import { fromBinaryData, NbtTagType } from './nbt';
 import { NbtBase } from './nbt-base';
+
+const debugLogFromBinaryData = debug('nbt:list:from-binary-data');
+const debugLogFindChild = debug('nbt:list:find-child');
 
 export class NbtList<T extends NbtBase<any>> extends NbtBase<T[]> {
     static fromBinaryData<SOURCE extends NbtBase<any>>(
@@ -12,9 +15,10 @@ export class NbtList<T extends NbtBase<any>> extends NbtBase<T[]> {
         const subtype = bd.getByte();
         const length = bd.getInt();
         const data: SOURCE[] = [];
-        debugLog(`LIST, name ${name}, subtype ${subtype}, length ${length}`);
+        debugLogFromBinaryData(
+            `LIST, name ${name}, subtype ${subtype}, length ${length}, start`
+        );
         const reader = fromBinaryData[subtype];
-        debugNesting(1);
 
         if (!reader) {
             throw new Error(`Invalid NBT tag type ${subtype} for list tag`);
@@ -25,19 +29,16 @@ export class NbtList<T extends NbtBase<any>> extends NbtBase<T[]> {
             data.push(reader(bd, '') as SOURCE);
         }
 
-        debugNesting(-1);
-        debugLog(`LIST, name ${name}, element count ${data.length}`);
+        debugLogFromBinaryData(
+            `LIST, name ${name}, subtype ${subtype}, element count ${data.length}, end`
+        );
 
         return new NbtList<SOURCE>(data, subtype, name);
     }
 
     subtype: NbtTagType;
 
-    constructor(
-        data: T[],
-        subtype: NbtTagType,
-        name?: string,
-    ) {
+    constructor(data: T[], subtype: NbtTagType, name?: string) {
         super(NbtTagType.LIST, data, name);
         this.subtype = subtype;
     }
@@ -46,6 +47,9 @@ export class NbtList<T extends NbtBase<any>> extends NbtBase<T[]> {
         path: string
     ): RESULT | undefined {
         if (this.subtype !== NbtTagType.COMPOUND) {
+            debugLogFindChild(
+                `LIST, name ${this.name}, subtype ${this.subtype}, path ${path}, not compound`
+            );
             return;
         }
 
@@ -59,18 +63,26 @@ export class NbtList<T extends NbtBase<any>> extends NbtBase<T[]> {
         const index = parseInt(currentSegment, 10);
 
         if (isNaN(index)) {
+            debugLogFindChild(`LIST, name ${this.name}, subtype ${this.subtype}, path ${path}, segment ${currentSegment}, not a number`);
+
             return;
         }
 
         const result = this.data[index];
 
         if (!result) {
+            debugLogFindChild(`LIST, name ${this.name}, subtype ${this.subtype}, path ${path}, segment ${currentSegment}, no child found at index ${index}`);
+
             return;
         }
 
         if (pathSegments.length) {
+            debugLogFindChild(`LIST, name ${this.name}, subtype ${this.subtype}, path ${path}, segment ${currentSegment}, recurse`);
+
             return result.findChild<RESULT>(pathSegments.join('/'));
         }
+
+        debugLogFindChild(`LIST, name ${this.name}, subtype ${this.subtype}, path ${path}, segment ${currentSegment}, found`);
 
         return result as unknown as RESULT;
     }

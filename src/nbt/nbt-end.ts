@@ -1,10 +1,12 @@
-import { debugLog } from '../lib/debug';
+import debug from 'debug';
 import { NbtBase } from './nbt-base';
 import { NbtTagType } from './nbt';
 
+const debugLogFromBinaryData = debug('nbt:end:from-binary-data');
+
 export class NbtEnd extends NbtBase<null> {
     static fromBinaryData(): NbtEnd {
-        debugLog('END');
+        debugLogFromBinaryData('END');
 
         return new NbtEnd();
     }

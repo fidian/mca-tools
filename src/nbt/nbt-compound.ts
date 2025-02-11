@@ -1,27 +1,32 @@
+import debug from 'debug';
 import { BinaryData } from '../lib/binary-data';
-import { debugLog, debugNesting } from '../lib/debug';
 import { Nbt, NbtTagType } from './nbt';
 import { NbtBase } from './nbt-base';
+
+const debugLogFromBinaryData = debug('nbt:compound:from-binary-data');
+const debugLogFindChild = debug('nbt:compound:find-child');
 
 export class NbtCompound extends NbtBase<NbtBase<any>[]> {
     static fromBinaryData<T>(bd: BinaryData, name?: string): NbtCompound {
         name ??= NbtCompound.readName(bd);
         const data: NbtBase<T>[] = [];
-        debugLog(`COMPOUND, name ${name}`);
+        debugLogFromBinaryData(`COMPOUND, name ${name}, starting`);
 
         // Careful - this does not store the END tag
-        debugNesting(1);
         let tag = Nbt.getTag(bd);
-        debugNesting(-1);
-        debugLog(`COMPOUND, name ${name}, tag ${tag.type} was retrieved`);
+        debugLogFromBinaryData(
+            `COMPOUND, name ${name}, tag ${tag.type} was retrieved`
+        );
 
         while (tag && tag.type !== NbtTagType.END) {
             data.push(tag);
-            debugNesting(1);
             tag = Nbt.getTag(bd);
-            debugNesting(-1);
-            debugLog(`COMPOUND, name ${name}, tag ${tag.type} was retrieved`);
+            debugLogFromBinaryData(
+                `COMPOUND, name ${name}, tag ${tag.type} was retrieved`
+            );
         }
+
+        debugLogFromBinaryData(`COMPOUND, name ${name}, finished`);
 
         return new NbtCompound(data, name);
     }
@@ -34,6 +39,9 @@ export class NbtCompound extends NbtBase<NbtBase<any>[]> {
         const pathSegments = path.split('/');
         const currentSegment = pathSegments.shift();
         const result = this.data.find((item) => item.name === currentSegment);
+        debugLogFindChild(
+            `COMPOUND, name ${this.name}, path ${path}, found? ${!!result}`
+        );
 
         if (!result) {
             return;
@@ -67,13 +75,10 @@ export class NbtCompound extends NbtBase<NbtBase<any>[]> {
             compound[name] = item.toObject();
         }
 
-        return [
-            this.name,
-            {
-                type: this.type,
-                compound,
-            },
-        ];
+        return {
+            type: this.type,
+            compound,
+        };
     }
 
     toSnbt() {

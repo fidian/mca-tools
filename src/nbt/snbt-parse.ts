@@ -1,9 +1,14 @@
-import { SnbtData } from './snbt-data';
+import debug from 'debug';
+import { SnbtData, SnbtTokenType } from './snbt-data';
+
+const debugLog = debug('snbt:parse');
 
 interface TokenParser {
+    type: SnbtTokenType;
     pattern: RegExp;
     callback: (
         offset: number,
+        type: SnbtTokenType,
         snbtData: SnbtData,
         match: RegExpMatchArray
     ) => number;
@@ -15,11 +20,13 @@ function testParsers(
     tokenParsers: TokenParser[],
     pos: number
 ) {
-    for (const { pattern, callback } of tokenParsers) {
+    for (const { type, pattern, callback } of tokenParsers) {
         const match = str.match(pattern);
 
         if (match) {
-            return callback(pos, snbtData, match);
+            debugLog(`Matched ${type} at position ${pos}: ${match[0]}`);
+
+            return callback(pos, type, snbtData, match);
         }
     }
 
@@ -28,100 +35,101 @@ function testParsers(
 
 const tokenParsers: TokenParser[] = [
     {
-        // Remove whitespace between tokens
+        type: 'WHITESPACE',
         pattern: /^\s+/,
-        callback: (_pos, _snbtData, matches) => {
+        callback: (_pos, _type, _snbtData, matches) => {
             return matches[0].length;
         },
     },
     {
-        // Colon separating name and value for compounds
+        type: 'COLON',
         pattern: /^:/,
-        callback: (pos, snbtData) => {
-            snbtData.addToken(pos, 'COLON', ':');
+        callback: (pos, type, snbtData) => {
+            snbtData.addToken(pos, type, ':');
 
             return 1;
         },
     },
     {
-        // Comma to separate lists and compounds
+        type: 'COMMA',
         pattern: /^,/,
-        callback: (pos, snbtData) => {
-            snbtData.addToken(pos, 'COMMA', ',');
+        callback: (pos, type, snbtData) => {
+            snbtData.addToken(pos, type, ',');
 
             return 1;
         },
     },
     {
-        // Byte array start
+        type: 'BYTE_ARRAY_START',
         pattern: /^\[\s*[bB]\s*;/,
-        callback: (pos, snbtData) => {
-            snbtData.addToken(pos, 'BYTE_ARRAY_START', '[');
+        callback: (pos, type, snbtData) => {
+            snbtData.addToken(pos, type, '[');
 
             return 3;
         },
     },
     {
-        // Int array start
+        type: 'INT_ARRAY_START',
         pattern: /^\[\s*[iI]\s*;/,
-        callback: (pos, snbtData) => {
-            snbtData.addToken(pos, 'INT_ARRAY_START', '[');
+        callback: (pos, type, snbtData) => {
+            snbtData.addToken(pos, type, '[');
 
             return 3;
         },
     },
     {
-        // Long array start
+        type: 'LONG_ARRAY_START',
         pattern: /^\[\s*[lL]\s*;/,
-        callback: (pos, snbtData) => {
-            snbtData.addToken(pos, 'LONG_ARRAY_START', '[');
+        callback: (pos, type, snbtData) => {
+            snbtData.addToken(pos, type, '[');
 
             return 3;
         },
     },
     {
-        // Compound start
+        type: 'COMPOUND_START',
         pattern: /^\{/,
-        callback: (pos, snbtData) => {
-            snbtData.addToken(pos, 'COMPOUND_START', '{');
+        callback: (pos, type, snbtData) => {
+            snbtData.addToken(pos, type, '{');
 
             return 1;
         },
     },
     {
-        // Compound end
+        type: 'COMPOUND_END',
         pattern: /^\}/,
-        callback: (pos, snbtData) => {
-            snbtData.addToken(pos, 'COMPOUND_END', '}');
+        callback: (pos, type, snbtData) => {
+            snbtData.addToken(pos, type, '}');
 
             return 1;
         },
     },
     {
-        // List start
+        type: 'LIST_START',
         pattern: /^\[/,
-        callback: (pos, snbtData) => {
-            snbtData.addToken(pos, 'LIST_START', '[');
+        callback: (pos, type, snbtData) => {
+            snbtData.addToken(pos, type, '[');
 
             return 1;
         },
     },
     {
-        // List end
+        type: 'LIST_END',
         pattern: /^\]/,
-        callback: (pos, snbtData) => {
-            snbtData.addToken(pos, 'LIST_END', ']');
+        callback: (pos, type, snbtData) => {
+            snbtData.addToken(pos, type, ']');
 
             return 1;
         },
     },
     {
-        // Boolean - this will get converted to a byte
+        // Byte - true / false converts to 1 / 0
+        type: 'BYTE',
         pattern: anchorPattern('([tT][rR][uU][eE]|[fF][aA][lL][sS][eE])'),
-        callback: (pos, snbtData, matches) => {
+        callback: (pos, type, snbtData, matches) => {
             snbtData.addToken(
                 pos,
-                'BYTE',
+                type,
                 matches[0].toLowerCase() === 'true' ? '1' : '0'
             );
 
@@ -129,84 +137,90 @@ const tokenParsers: TokenParser[] = [
         },
     },
     {
-        // Byte
+        // Byte - number with a suffix
+        type: 'BYTE',
         pattern: anchorPattern('[-+]?[0-9]+[bB]'),
-        callback: (pos, snbtData, matches) => {
-            snbtData.addToken(pos, 'BYTE', matches[0]);
+        callback: (pos, type, snbtData, matches) => {
+            snbtData.addToken(pos, type, matches[0]);
 
             return matches[0].length;
         },
     },
     {
         // Double - there's another without the D later
+        type: 'DOUBLE',
         pattern: anchorPattern('[-+]?[0-9.]+[dD]'),
-        callback: (pos, snbtData, matches) => {
-            snbtData.addToken(pos, 'DOUBLE', matches[0]);
+        callback: (pos, type, snbtData, matches) => {
+            snbtData.addToken(pos, type, matches[0]);
 
             return matches[0].length;
         },
     },
     {
-        // Float
+        type: 'FLOAT',
         pattern: anchorPattern('[-+]?[0-9.]+[fF]'),
-        callback: (pos, snbtData, matches) => {
-            snbtData.addToken(pos, 'FLOAT', matches[0]);
+        callback: (pos, type, snbtData, matches) => {
+            snbtData.addToken(pos, type, matches[0]);
 
             return matches[0].length;
         },
     },
     {
-        // Long
+        type: 'LONG',
         pattern: anchorPattern('[-+]?[0-9]+[lL]'),
-        callback: (pos, snbtData, matches) => {
-            snbtData.addToken(pos, 'LONG', matches[0]);
+        callback: (pos, type, snbtData, matches) => {
+            snbtData.addToken(pos, type, matches[0]);
 
             return matches[0].length;
         },
     },
     {
-        // Short
+        type: 'SHORT',
         pattern: anchorPattern('[-+]?[0-9]+[sS]'),
-        callback: (pos, snbtData, matches) => {
-            snbtData.addToken(pos, 'SHORT', matches[0]);
+        callback: (pos, type, snbtData, matches) => {
+            snbtData.addToken(pos, type, matches[0]);
 
             return matches[0].length;
         },
     },
     {
         // Double - this must come after other suffixed number types but before
-        // Int
+        // Int's matcher
+        type: 'DOUBLE',
         pattern: anchorPattern('[-+]?[0-9.]+'),
-        callback: (pos, snbtData, matches) => {
-            snbtData.addToken(pos, 'DOUBLE', matches[0]);
+        callback: (pos, type, snbtData, matches) => {
+            snbtData.addToken(pos, type, matches[0]);
 
             return matches[0].length;
         },
     },
     {
         // Int - this must come after all other number types
+        type: 'INT',
         pattern: anchorPattern('[-+]?[0-9]+'),
-        callback: (pos, snbtData, matches) => {
-            snbtData.addToken(pos, 'INT', matches[0]);
+        callback: (pos, type, snbtData, matches) => {
+            snbtData.addToken(pos, type, matches[0]);
 
             return matches[0].length;
         },
     },
     {
         // String - single or double quotes
+        type: 'STRING',
         pattern: /^([\"'])(?:\\.|.)*?\1/,
-        callback: (pos, snbtData, matches) => {
+        callback: (pos, type, snbtData, matches) => {
             const chunk = JSON.parse(`"${matches[0].slice(1, -1)}"`);
-            snbtData.addToken(pos, 'STRING', chunk);
+            snbtData.addToken(pos, type, chunk);
 
             return matches[0].length;
         },
     },
     {
         // String - not quoted and all else failed
+        type: 'STRING',
         pattern: anchorPattern('^[-0-9a-zA-Z_.+]+'),
-        callback: (pos, snbtData, matches) => {
-            snbtData.addToken(pos, 'STRING', matches[0]);
+        callback: (pos, type, snbtData, matches) => {
+            snbtData.addToken(pos, type, matches[0]);
 
             return matches[0].length;
         },

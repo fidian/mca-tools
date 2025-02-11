@@ -1,14 +1,16 @@
+import debug from 'debug';
 import { BinaryData } from '../lib/binary-data';
-import { debugLog } from '../lib/debug';
 import { NbtBase } from './nbt-base';
 import { NbtTagType } from './nbt';
+
+const debugLogFromBinaryData = debug('nbt:long-array:from-binary-data');
 
 export class NbtLongArray extends NbtBase<bigint[]> {
     static fromBinaryData(bd: BinaryData, name?: string): NbtLongArray {
         name ??= NbtLongArray.readName(bd);
         const data: bigint[] = [];
         const length = bd.getInt();
-        debugLog(`LONG_ARRAY, name ${name}, length ${length}`);
+        debugLogFromBinaryData(`LONG_ARRAY, name ${name}, length ${length}`);
 
         for (let i = 0; i < length; i++) {
             // This needs to be able to be converted back to a bit stream in
@@ -16,7 +18,7 @@ export class NbtLongArray extends NbtBase<bigint[]> {
             data.push(bd.getInt64LE());
         }
 
-        debugLog(`LONG_ARRAY, name ${name}, data ${data}`);
+        debugLogFromBinaryData(`LONG_ARRAY, name ${name}, data ${data}`);
 
         return new NbtLongArray(data, name);
     }

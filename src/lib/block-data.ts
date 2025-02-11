@@ -1,3 +1,4 @@
+import debug from 'debug';
 import { BitData } from './bit-data';
 import { Coords3d } from '../types/coords';
 import { NbtCompound } from '../nbt/nbt-compound';
@@ -5,9 +6,10 @@ import { NbtList } from '../nbt/nbt-list';
 import { NbtLongArray } from '../nbt/nbt-long-array';
 
 const BLOCKS_PER_CHUNK = 16 * 16 * 16;
+const debugLog = debug('block-data');
 
 function parseBlockData(
-    blocks: number[],
+    blockIds: number[],
     bitData: BitData,
     paletteMap: Map<number, string>
 ) {
@@ -24,11 +26,14 @@ function parseBlockData(
 
             if (!paletteMap.has(blockId)) {
                 throw new Error(
-                    `Block ID ${blockId} not found in palette when reading index ${blockIdsRead}`
+                    `Block ID ${blockId}, index ${blockIdsRead} not found in palette when reading index ${blockIdsRead}`
                 );
             }
 
-            blocks.push(blockId);
+            debugLog(
+                `Block ID ${blockId} (${paletteMap.get(blockId)}) at index ${blockIdsRead}`
+            );
+            blockIds.push(blockId);
             bitsRead += bitsNeededForPalette;
             blockIdsRead += 1;
         }
@@ -37,12 +42,13 @@ function parseBlockData(
             // These extra bits can have any values. They are not
             // initialized before writing to disk.
             bitData.getBits(64 - bitsRead);
+            debugLog(`Skipped ${64 - bitsRead} bits`);
         }
 
         bitsRead = 0;
     }
 
-    return blocks;
+    return blockIds;
 }
 
 export class BlockData {
@@ -69,45 +75,45 @@ export class BlockData {
             }
         }
 
-        const blocks: number[] = [];
+        const blockIds: number[] = [];
 
         if (blockStates) {
             const bitData = BitData.fromLongArrayTag(blockStates);
-            parseBlockData(blocks, bitData, paletteMap);
+            parseBlockData(blockIds, bitData, paletteMap);
         }
 
         // Fill the rest of the blocks with the first element in the palette.
         // The documentation says that a chunk could be filled with just the
         // first index in the palette and not have any block data.
-        while (blocks.length < BLOCKS_PER_CHUNK) {
-            blocks.push(0);
+        while (blockIds.length < BLOCKS_PER_CHUNK) {
+            blockIds.push(0);
         }
 
         // Safety
-        while (blocks.length > BLOCKS_PER_CHUNK) {
-            blocks.pop();
+        while (blockIds.length > BLOCKS_PER_CHUNK) {
+            blockIds.pop();
         }
 
-        return new BlockData(paletteMap, blocks);
+        return new BlockData(paletteMap, blockIds);
     }
 
     constructor(
         public paletteMap: Map<number, string>,
-        public blocks: number[]
+        public blockIds: number[]
     ) {}
 
     chunkCoordinatesToIndex([x, y, z]: Coords3d) {
         return (y << 8) | (z << 4) | x;
     }
 
-    findBlocksById(id: string): number[] {
+    findBlocksByName(name: string): number[] {
         const number = Array.from(this.paletteMap.keys()).find(
-            (key) => this.paletteMap.get(key) === id
+            (key) => this.paletteMap.get(key) === name
         );
         const result = [];
 
-        for (let i = 0; i < this.blocks.length; i++) {
-            if (this.blocks[i] === number) {
+        for (let i = 0; i < this.blockIds.length; i++) {
+            if (this.blockIds[i] === number) {
                 result.push(i);
             }
         }
@@ -116,7 +122,7 @@ export class BlockData {
     }
 
     getBlockByIndex(index: number) {
-        const blockId = this.blocks[index];
+        const blockId = this.blockIds[index];
         const blockName = this.paletteMap.get(blockId);
 
         if (!blockName) {
@@ -145,14 +151,13 @@ export class BlockData {
     toArray() {
         let errors: any[] = [];
 
-        const result = this.blocks.map((block, index) => {
-            const blockId = this.paletteMap.get(block);
+        const result = this.blockIds.map((blockId, index) => {
+            const blockName = this.paletteMap.get(blockId);
 
-            if (!blockId) {
+            if (!blockName) {
                 errors.push({
                     index,
                     chunkCoordinates: this.indexToChunkCoordinates(index),
-                    block,
                     blockId,
                     paletteLength: this.paletteMap.size,
                     palette: Array.from(this.paletteMap.values()),
@@ -161,7 +166,7 @@ export class BlockData {
 
             return {
                 chunkCoordinates: this.indexToChunkCoordinates(index),
-                blockId,
+                blockName,
             };
         });
 

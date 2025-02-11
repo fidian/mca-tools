@@ -14,7 +14,8 @@ export type SnbtTokenType =
     | 'LONG'
     | 'LONG_ARRAY_START'
     | 'SHORT'
-    | 'STRING';
+    | 'STRING'
+    | 'WHITESPACE'; // For logging, but not made into tokens
 
 export interface SnbtToken {
     content: string;

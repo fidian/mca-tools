@@ -1,13 +1,15 @@
+import debug from 'debug';
 import { BinaryData } from '../lib/binary-data';
-import { debugLog } from '../lib/debug';
 import { NbtBase } from './nbt-base';
 import { NbtTagType } from './nbt';
+
+const debugLogFromBinaryData = debug('nbt:byte:from-binary-data');
 
 export class NbtByte extends NbtBase<number> {
     static fromBinaryData(bd: BinaryData, name?: string): NbtByte {
         name ??= NbtByte.readName(bd);
         const data = bd.getByte();
-        debugLog(`BYTE, name ${name}, data ${data}`);
+        debugLogFromBinaryData(`BYTE, name ${name}, data ${data}`);
 
         return new NbtByte(data, name);
     }

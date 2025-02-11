@@ -1,4 +1,7 @@
+import debug from 'debug';
 import { NbtLongArray } from '../nbt/nbt-long-array';
+
+const debugLog = debug('bit-data');
 
 // At most, we will have 7 bits to mask
 const MASK = [0, 1, 3, 7, 15, 31, 63, 127];
@@ -36,9 +39,21 @@ export class BitData {
     }
 
     getBits(n: number): number {
+        debugLog(
+            `getBits(${n}), start, position ${this.position}, bits ${this.partial.toString(2).padStart(this.partialCount, '0').substr(-this.partialCount)}`
+        );
+
         // Add extra bits to the left
         while (n > this.partialCount) {
-            this.partial |= this.view.getUint8(this.position) << this.partialCount;
+            if (this.position >= this.length) {
+                throw new Error('Out of data');
+            }
+
+            this.partial |=
+                this.view.getUint8(this.position) << this.partialCount;
+            debugLog(
+                `getBits(${n}), add byte, position ${this.position}, bits ${this.partial.toString(2).padStart(this.partialCount, '0').substr(-this.partialCount)}`
+            );
             this.position += 1;
             this.partialCount += 8;
         }
@@ -47,6 +62,9 @@ export class BitData {
         const result = this.partial & MASK[n];
         this.partial >>= n;
         this.partialCount -= n;
+        debugLog(
+            `getBits(${n}), end, position ${this.position}, bits ${this.partial.toString(2).padStart(this.partialCount, '0').substr(-this.partialCount)}, result ${result.toString(2).padStart(n, '0')} (${result})`
+        );
 
         return result;
     }
@@ -71,7 +89,10 @@ export class BitData {
         this.partialCount += n;
 
         while (this.partialCount >= 8) {
-            this.view.setUint8(this.position, this.partial >> (this.partialCount - 8));
+            this.view.setUint8(
+                this.position,
+                this.partial >> (this.partialCount - 8)
+            );
             this.position += 1;
             this.partialCount -= 8;
             this.partial &= MASK[this.partialCount];

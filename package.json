@@ -3,7 +3,8 @@
     "version": "0.0.0",
     "description": "Convert Minecraft MCA into JSON and back, or modify directly in memory.",
     "bin": {
-        "mca2json": "dist/bin/mca2json.mjs"
+        "mca-chunks": "dist/bin/mca-chunks.mjs",
+        "mca-json": "dist/bin/mca-json.mjs"
     },
     "scripts": {
         "build": "rm -rf dist && tsc",
@@ -19,6 +20,7 @@
         "pako": "^2.1.0"
     },
     "devDependencies": {
+        "@types/debug": "^4.1.12",
         "@types/pako": "^2.0.3",
         "typescript": "^5.7.3"
     }

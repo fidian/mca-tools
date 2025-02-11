@@ -6,6 +6,7 @@
  * This class helps manipulate the chunk data.
  */
 
+import { Block } from '../block/block';
 import { BlockData } from './block-data';
 import { Coords2d, Coords3d } from '../types/coords';
 import { NbtBase } from '../nbt/nbt-base';
@@ -16,7 +17,6 @@ import { NbtLong } from '../nbt/nbt-long';
 import { NbtLongArray } from '../nbt/nbt-long-array';
 import { NbtString } from '../nbt/nbt-string';
 import { NbtTagType } from '../nbt/nbt';
-import { toBlock } from '../blocks/to-block';
 
 export class Chunk {
     private dataVersion: number;
@@ -40,27 +40,32 @@ export class Chunk {
     }
 
     /**
+     * Gets the block entity list tag.
+     */
+    blockEntities(): NbtList<NbtCompound> | undefined {
+        return (
+            // 1.18+
+            this.rootNbt.findChild('block_entities') ||
+            // up to 1.17
+            this.rootNbt.findChild('Level/TileEntities')
+        );
+    }
+
+    /**
      * Gets a block's entity data
      */
     blockEntityData(coords: Coords3d): NbtCompound | undefined {
-        return this.rootNbt
-            .findChild('block_entities')
-            ?.data.map((tag: NbtList<NbtCompound>) => {
-                const x = tag.findChild<NbtInt>('x');
-                const y = tag.findChild<NbtInt>('y');
-                const z = tag.findChild<NbtInt>('z');
+        return this.blockEntities()?.data.find((tag: NbtCompound) => {
+            const x = tag.findChild<NbtInt>('x');
+            const y = tag.findChild<NbtInt>('y');
+            const z = tag.findChild<NbtInt>('z');
 
-                if (
-                    x?.data === coords[0] &&
-                    y?.data === coords[1] &&
-                    z?.data === coords[2]
-                ) {
-                    return tag;
-                }
-
-                return;
-            })
-            .find((tag: NbtList<NbtCompound> | undefined) => tag !== undefined);
+            return (
+                x?.data === coords[0] &&
+                y?.data === coords[1] &&
+                z?.data === coords[2]
+            );
+        });
     }
 
     /**
@@ -69,8 +74,16 @@ export class Chunk {
      * Returns a tuple of the chunk's X and Z coordinates.
      */
     chunkCoordinates(): Coords2d | undefined {
-        const x = this.rootNbt.findChild('xPos');
-        const z = this.rootNbt.findChild('zPos');
+        const x =
+            // 1.18+
+            this.rootNbt.findChild('xPos') ||
+            // up to 1.17
+            this.rootNbt.findChild('Level/xPos');
+        const z =
+            // 1.18+
+            this.rootNbt.findChild('zPos') ||
+            // up to 1.17
+            this.rootNbt.findChild('Level/zPos');
 
         if (typeof x?.data !== 'number' || typeof z?.data !== 'number') {
             return;
@@ -97,7 +110,7 @@ export class Chunk {
      * Returns an instance of a block at a given location using world
      * coordinates.
      */
-    getBlock(coords: Coords3d): BlockGeneric {
+    getBlock(coords: Coords3d): Block {
         const sectionY = Math.floor(coords[1] / 16);
         const sectionsTag = this.sectionsTag();
 
@@ -133,13 +146,13 @@ export class Chunk {
         ]);
         const name = blockData.getBlockByIndex(index);
 
-        return toBlock(name, coords, this.blockEntityData(coords));
+        return Block.create(name, coords, this.blockEntityData(coords));
     }
 
     /**
-     * Finds all blocks by a given ID. Provides [X, Y, Z] real-world coordinates.
+     * Finds all blocks by a given name. Provides [X, Y, Z] real-world coordinates.
      */
-    findBlocksById(id: string): Coords3d[] {
+    findBlocksByName(name: string): Coords3d[] {
         const sectionsTag = this.sectionsTag();
 
         if (!sectionsTag) {
@@ -156,13 +169,13 @@ export class Chunk {
             }
 
             // // If it's not in the palette, we can skip processing.
-            if (!this.paletteNameList(palette).includes(id)) {
+            if (!this.paletteNameList(palette).includes(name)) {
                 return [];
             }
 
             const blockData = this.parseSection(section);
 
-            return blockData.findBlocksById(id).map((index): Coords3d => {
+            return blockData.findBlocksByName(name).map((index): Coords3d => {
                 const chunkCoordinates =
                     blockData.indexToChunkCoordinates(index);
 
@@ -184,7 +197,12 @@ export class Chunk {
      * this with caution.
      */
     inhabitedTime(): bigint | undefined {
-        return this.rootNbt.findChild<NbtLong>('InhabitedTime')?.data;
+        return (
+            // 1.18+
+            this.rootNbt.findChild<NbtLong>('InhabitedTime')?.data ||
+            // up to 1.17
+            this.rootNbt.findChild<NbtLong>('Level/InhabitedTime')?.data
+        );
     }
 
     /**
@@ -205,7 +223,7 @@ export class Chunk {
         }
 
         const names = sectionsTag.data.flatMap((section) => {
-            const palette = section.findChild('block_states/palette');
+            const palette = this.sectionPalette(section);
 
             if (!palette) {
                 return [];
@@ -311,7 +329,12 @@ export class Chunk {
      * Finds the BlockStates tag in a section.
      */
     private sectionBlockStates(section: NbtCompound): NbtLongArray | undefined {
-        return section.findChild('block_states/data');
+        return (
+            // 1.18+
+            section.findChild('block_states/data') ||
+            // up to 1.17
+            section.findChild('BlockStates')
+        );
     }
 
     /**
@@ -320,14 +343,23 @@ export class Chunk {
     private sectionPalette(
         section: NbtCompound
     ): NbtList<NbtCompound> | undefined {
-        return section.findChild('block_states/palette');
+        return (
+            // 1.18+
+            section.findChild('block_states/palette') ||
+            // up to 1.17
+            section.findChild('Palette')
+        );
     }
 
     /**
      * Returns all sections
      */
     private sectionsTag(): NbtList<NbtCompound> | undefined {
-        const section = this.rootNbt.findChild('sections');
+        const section =
+            // 1.18+
+            this.rootNbt.findChild('sections') ||
+            // up to 1.17
+            this.rootNbt.findChild('Level/Sections');
 
         if (section && this.isValidChunkSection(section)) {
             return section;

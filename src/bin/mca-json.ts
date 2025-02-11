@@ -17,45 +17,31 @@ const args: {
     '--chunk-coords'?: string | string[];
     '--compact'?: boolean;
     '--condense'?: boolean;
-    '--list-chunk-coords'?: boolean;
     '<input>'?: string;
     '<output>'?: string;
 } = neodoc.run(
-`Usage: mca2json [OPTIONS] [<input> [<output>]]
+`Usage: mca-json [OPTIONS] [<input> [<output>]]
 
 Converts a Minecraft MCA file to JSON. Both input and output are optional. If
 input is not provided, this reads from stdin. If output is not provided, this
 writes to stdout.
+
+Because MCA files can contain a tremendous amount of information, the tool
+might run out of memory. When that happens, you can dump specific chunks by
+specifying the --chunk-coords option.
 
 Options:
     --chunk-coords=COORDS
                     Only write out the chunk at the specified chunk coordinates.
                     Chunk coordinates are absolute chunks from the world origin.
                     Can be specified multiple times. Coordinates are specified
-                    as "x,z". See note about chunk coordinates.
+                    as "x,z". Highly recommended to limit the size of the JSON
+                    that's generated.
     --compact       Do not use pretty-printing in the JSON output.
     --condense      Condense arrays of bytes, ints, and longs to a single line.
                     This significantly cuts down on the size of the generated
                     JSON.
-    --list-chunk-coords
-                    Lists all of the chunk coordinates in the file. When used,
-                    the output file only has a list of chunk coordinates and the
-                    JSON output is not produced.
     -h, --help      Show this message.
-
-Chunk Coordinates:
-
-A player typically interacts with Minecraft and can easily determine their
-world coordinates. To convert from world coordinates to chunk coordinates,
-divide the x and z world coordinates by 16, rounded down. World coordinates and
-chunk coordinates also relate similarly to regions, which are 32 x 32 chunks.
-The region coordinates are the chunk coordinates divided by 32 and rounded
-down.
-
-                      X    Y    Z
-Player coordinates: 1234, 65, 5678
- Chunk coordinates:   77,      354 - Chunks span the entire Y column
-Region coordinates:    2,       11 - Region file is r.2.11.mca
 `,
     {
         argv: [...process.argv].slice(2),
@@ -72,10 +58,6 @@ readInput(args['<input>'])
 
         const anvilParser = Anvil.fromBuffer(inputBuffer.buffer as ArrayBuffer);
         let chunks = anvilParser.getAllChunks();
-
-        if (args['--list-chunk-coords']) {
-            return chunks.map((chunk) => chunk.chunkKey()).join('\n');
-        }
 
         if (args['--chunk-coords']) {
             if (!Array.isArray(args['--chunk-coords'])) {

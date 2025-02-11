@@ -17,21 +17,31 @@ This also has an API to include into your own programs. The JavaScript library d
 ## Command-Line Tools
 
 
-### `mca2json` - Convert MCA to JSON
+### `mca-json` - Convert MCA to JSON
 
 Converts an MCA file to JSON. Both input and output files are optional and it will read from stdin and write to stdout if not provided.
 
 ```
 # See all of the options available
-mca2json --help
+mca-json --help
 
 # Convert a MCA file to JSON
-mca2json ~/.minecraft/saves/Test_World/region/r.2.1.mca ~/r.2.1.json
+mca-json ~/.minecraft/saves/Test_World/region/r.2.1.mca ~/r.2.1.json
 ```
 
 The output JSON is expected to be quite large. For example, one mostly untouched region used for testing is about 1 gigabyte of JSON. Because of this, there are options to make the output smaller while still being valid JSON. To not pretty-print the result, using `--compact` will reduce the size to roughly 1/10 of the expanded JSON but it's now all one long line. To preserve the majority of the spacing but collapse lists of numbers into a single line while still pretty printing the rest, use `--condense` and that will consume about 3/10 of the expanded size but still be understandable in a text editor.
 
-If you only want to know what chunks are within a region file, use `--list-chunk-coords` and they will be printed, one per line.
+
+### `mca-chunks` - List the chunk coordinates within a MCA file
+
+Lists the chunk coordinates (not world coordinates) of each chunk contained with a single MCA file. Each chunk's coordinates are listed to the output, one per line in the format "X,Z".
+
+```
+# Show all chunk coordinates in a file
+mca-chunks ~/.minecraft/saves/Test_World/region/r.2.1.mca
+```
+
+This can also read the MCA file from stdin or write the output to a file. See `mca-chunks --help` for usage instructions.
 
 
 ## API
@@ -82,7 +92,7 @@ Gets associated block entity data from the chunk. For instance, this can get a s
 Returns an array with the X and Z coordinates. The chunk's coordinates are the `xPos` and `yPos` tags, which are absolute chunk coordinates from the world origin, not from the region.
 
 
-#### `chunk.findBlocksById(id: string): Coords3d[]`
+#### `chunk.findBlocksByName(name: string): Coords3d[]`
 
 Returns an array. Each element in the array is another array of the X, Y, and Z coordinates of blocks. The coordinates are real-world coordinates. This method will need to unpack the block list, so it will first use a palette to see if the decompression and the lengthy scan can be avoided.
 
@@ -114,27 +124,27 @@ Returns an array with the X and Z real-world coordinates. The chunk will span fr
 
 ### Block Classes
 
-All blocks will inherit from GenericBlock. Other types of blocks are detected by their id (the string name that is given). Below are the patterns and the type of block that will be produced if that filter matches.
+All blocks will inherit from Generic. Other types of blocks are detected by their name. Below are the patterns and the type of block that will be produced if that filter matches. There's a built-in function that will be used to determine if a block is of a specific type. These are static methods on the `Block` class, which all take the name as the only parameter and return a boolean.
 
-* `minecraft:*_sign` - `SignBlock`
+* `Block.isSign(name: string): boolean`
 
 
-### `genericBlock.coords: Coords3d`
+### `generic.coords: Coords3d`
 
 The world coordinates of the block.
 
 
-#### `genericBlock.entityData: NbtCompound | undefined`
+#### `generic.entityData: NbtCompound | undefined`
 
 The NBT entity data associated with this block. If there is none, this is left `undefined`.
 
 
-#### `genericBlock.id: string`
+#### `generic.name: string`
 
-The ID of the block.
+The name of the block.
 
 
-#### `signBlock.signText(): SignText | undefined`
+#### `sign.signText(): SignText | undefined`
 
 Gets a sign's text, both the front and back sides. Signs store their data as SNBT, which is a shortened, string-based NBT storage system. This method extracts just the text.
 
@@ -144,6 +154,7 @@ interface SignText {
     back?: [string, string, string, string], // 1.20+
 }
 ```
+
 
 ### NBT Classes
 
@@ -210,7 +221,7 @@ are the chunk coordinates divided by 32 and rounded down.
 
 |        Type        |   X   |   Y   |   Z   |
 |:------------------:|:-----:|:-----:|:-----:|
-| Player Coordinates |  1234 |   65  | -5678 |
+|  World Coordinates |  1234 |   65  | -5678 |
 |  Chunk Coordinates |   77  |   *   |  -355 |
 | Region Coordinates |   2   |   *   |  -12  |
 
@@ -223,6 +234,9 @@ Special notes about the above example:
 
 ### Supported versions
 
-* Java, 1.21.4, data format 4189.
+This has been loosely tested with the following editions. Other versions should work as well. If not, please supply a test MCA file and a description of the problem, or submit a pull request.
+
+* Java, 1.21.4, data version 4189.
+* Java, 1.17.1, data version 2730.
 
 Other versions can be supported through pull requests that contain tests to verify loading and processing works.
