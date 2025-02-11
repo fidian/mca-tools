@@ -1,7 +1,7 @@
 import debug from 'debug';
 import { BinaryData } from '../lib/binary-data';
 import { NbtBase } from './nbt-base';
-import { NbtTagType } from './nbt';
+import { NbtTagType } from './nbt-tag-type';
 
 const debugLogFromBinaryData = debug('nbt:double:from-binary-data');
 

@@ -1,6 +1,6 @@
 import debug from 'debug';
 import { NbtBase } from './nbt-base';
-import { NbtTagType } from './nbt';
+import { NbtTagType } from './nbt-tag-type';
 
 const debugLogFromBinaryData = debug('nbt:end:from-binary-data');
 

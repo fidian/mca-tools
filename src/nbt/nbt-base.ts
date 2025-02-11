@@ -1,5 +1,5 @@
 import { BinaryData } from '../lib/binary-data';
-import { NbtTagType } from './nbt';
+import { NbtTagType } from './nbt-tag-type';
 
 export abstract class NbtBase<T> {
     static readName(bd: BinaryData) {

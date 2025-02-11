@@ -126,10 +126,11 @@ Returns an array with the X and Z real-world coordinates. The chunk will span fr
 
 All blocks will inherit from Generic. Other types of blocks are detected by their name. Below are the patterns and the type of block that will be produced if that filter matches. There's a built-in function that will be used to determine if a block is of a specific type. These are static methods on the `Block` class, which all take the name as the only parameter and return a boolean.
 
+* `Block.isBanner(name: string): boolean`
 * `Block.isSign(name: string): boolean`
 
 
-### `generic.coords: Coords3d`
+#### `generic.coords: Coords3d`
 
 The world coordinates of the block.
 
@@ -144,16 +145,54 @@ The NBT entity data associated with this block. If there is none, this is left `
 The name of the block.
 
 
-#### `sign.signText(): SignText | undefined`
+#### `banner.bannerPatterns(): BannerPattern[]`
 
-Gets a sign's text, both the front and back sides. Signs store their data as SNBT, which is a shortened, string-based NBT storage system. This method extracts just the text.
+Returns a list of banner pattern information applied to the banner, in order.
 
 ```
-interface SignText {
-    front: [string, string, string, string], // Always there
-    back?: [string, string, string, string], // 1.20+
+interface BannerPattern {
+    color: string;
+    pattern: string | {
+        asset_id: string;
+        translation_key: string;
+    }
 }
 ```
+
+
+#### `sign.signBackColor(): string | undefined`
+
+Returns the color of the text on the back of the sign for 1.20+. For older versions, this returns `undefined`.
+
+
+#### `sign.signBackGlowingText(): boolean | undefined`
+
+Returns `true` if the sign has glowing text on the back for 1.20+. For older versions, this returns `undefined`.
+
+
+#### `sign.signBackText(): string[] | undefined`
+
+Returns the four lines of text on the back of the sign for 1.20+. For older versions, this returns `undefined`.
+
+
+#### `sign.signFrontColor(): string | undefined`
+
+Returns the color of the text on the front of the sign.
+
+
+#### `sign.signFrontGlowingText(): boolean | undefined`
+
+Returns `true` if the sign has glowing text on the front.
+
+
+#### `sign.signFrontText(): string[]`
+
+Returns the four lines of text on the front of the sign.
+
+
+#### `sign.isWaxed(): boolean`
+
+Returns `true` if the sign is waxed and `false` if not for 1.20+. For older versions, this returns `undefined`.
 
 
 ### NBT Classes

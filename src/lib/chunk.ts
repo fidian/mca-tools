@@ -6,7 +6,7 @@
  * This class helps manipulate the chunk data.
  */
 
-import { Block } from '../block/block';
+import { Block, BlockInstance } from '../block/block';
 import { BlockData } from './block-data';
 import { Coords2d, Coords3d } from '../types/coords';
 import { NbtBase } from '../nbt/nbt-base';
@@ -16,7 +16,7 @@ import { NbtList } from '../nbt/nbt-list';
 import { NbtLong } from '../nbt/nbt-long';
 import { NbtLongArray } from '../nbt/nbt-long-array';
 import { NbtString } from '../nbt/nbt-string';
-import { NbtTagType } from '../nbt/nbt';
+import { NbtTagType } from '../nbt/nbt-tag-type';
 
 export class Chunk {
     private dataVersion: number;
@@ -110,7 +110,7 @@ export class Chunk {
      * Returns an instance of a block at a given location using world
      * coordinates.
      */
-    getBlock(coords: Coords3d): Block {
+    getBlock(coords: Coords3d): BlockInstance {
         const sectionY = Math.floor(coords[1] / 16);
         const sectionsTag = this.sectionsTag();
 

@@ -1,58 +1,82 @@
-import { Generic } from './generic';
+import { HasEntityData } from './has-entity-data';
 import { Nbt } from '../nbt/nbt';
+import { NbtByte } from '../nbt/nbt-byte';
 import { NbtList } from '../nbt/nbt-list';
 import { NbtString } from '../nbt/nbt-string';
+import { NbtTagType } from '../nbt/nbt-tag-type';
 
-type SignTextStrings = [string, string, string, string];
+type SignText = [string, string, string, string];
 
-export interface SignText {
-    front: SignTextStrings;
+export class Sign extends HasEntityData {
+    override readonly type = 'SIGN';
 
-    // Added in 1.20
-    back?: SignTextStrings;
-}
+    signBackColor(): string | undefined {
+        // 1.20+
+        return this.entityData.findChild<NbtString>('back_text/color')?.data;
+    }
 
-function isSignTextStrings(value?: string[]): value is SignTextStrings {
-    return value?.length === 4;
-}
+    signBackGlowingText(): boolean | undefined {
+        // 1.20+
+        const byte = this.entityData.findChild<NbtByte>(
+            'back_text/has_glowing_text'
+        );
 
-export class Sign extends Generic {
-    /**
-     * Gets a sign's text.
-     */
-    signText(): SignText {
-        function snbtToText(snbtList: SignTextStrings): SignTextStrings {
-            return snbtList.map((snbt) => {
-                const tag = Nbt.fromSnbt(snbt);
-
-                // 1.20 and newer
-                if (tag instanceof NbtString) {
-                    return tag.data;
-                }
-
-                // Old version
-                return tag.findChild<NbtString>('text')?.data ?? '';
-            }) as SignTextStrings;
+        if (byte) {
+            return byte.data !== 0;
         }
 
-        if (!this.entityData) {
-            throw new Error('Block is supposed to have entity data');
-        }
+        // Up to 1.19
+        return;
+    }
 
-        const frontSnbt = this.entityData
-            .findChild<NbtList<NbtString>>('front_text/messages')
-            ?.data.map((tag) => tag.data);
+    signBackText(): SignText | undefined {
+        // 1.20+
         const backSnbt = this.entityData
             .findChild<NbtList<NbtString>>('back_text/messages')
             ?.data.map((tag) => tag.data);
 
-        if (isSignTextStrings(frontSnbt) && isSignTextStrings(backSnbt)) {
-            return {
-                front: snbtToText(frontSnbt),
-                back: snbtToText(backSnbt),
-            } as SignText;
+        if (this.isSignText(backSnbt)) {
+            return this.snbtToText(backSnbt);
         }
 
+        // Up to 1.19
+        return;
+    }
+
+    signFrontColor(): string | undefined {
+        return (
+            // 1.20+
+            this.entityData.findChild<NbtString>('front_text/color')?.data ||
+            // Up to 1.19
+            this.entityData.findChild<NbtString>('Color')?.data
+        );
+    }
+
+    signFrontGlowingText(): boolean | undefined {
+        const byte =
+            // 1.20+
+            this.entityData.findChild<NbtByte>('front_text/has_glowing_text') ||
+            // Up to 1.19
+            this.entityData.findChild<NbtByte>('GlowingText');
+
+        if (byte) {
+            return byte.data !== 0;
+        }
+
+        return;
+    }
+
+    signFrontText(): SignText {
+        // 1.20+
+        const frontSnbt = this.entityData
+            .findChild<NbtList<NbtString>>('front_text/messages')
+            ?.data.map((tag) => tag.data);
+
+        if (this.isSignText(frontSnbt)) {
+            return this.snbtToText(frontSnbt);
+        }
+
+        // Up to 1.19
         const frontOldSnbt = [
             this.entityData.findChild<NbtString>('Text1')?.data,
             this.entityData.findChild<NbtString>('Text2')?.data,
@@ -60,12 +84,40 @@ export class Sign extends Generic {
             this.entityData.findChild<NbtString>('Text4')?.data,
         ].filter((tag): tag is string => !!tag);
 
-        if (isSignTextStrings(frontOldSnbt)) {
-            return {
-                front: snbtToText(frontOldSnbt),
-            };
+        if (this.isSignText(frontOldSnbt)) {
+            return this.snbtToText(frontOldSnbt);
         }
 
         throw new Error('Unknown format for sign text');
+    }
+
+    signIsWaxed(): boolean | undefined {
+        const tag = this.entityData.findChild<NbtByte>('waxed');
+
+        if (!tag) {
+            // Up to 1.19
+            return;
+        }
+
+        // 1.20+
+        return tag.data !== 0;
+    }
+
+    private isSignText(value?: string[]): value is SignText {
+        return value?.length === 4;
+    }
+
+    private snbtToText(snbtList: SignText): SignText {
+        return snbtList.map((snbt) => {
+            const tag = Nbt.fromSnbt(snbt);
+
+            // 1.20 and newer
+            if (tag.type === NbtTagType.STRING) {
+                return tag.data;
+            }
+
+            // Up to 1.19
+            return tag.findChild<NbtString>('text')?.data ?? '';
+        }) as SignText;
     }
 }

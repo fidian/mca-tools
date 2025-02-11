@@ -7,7 +7,8 @@
         "mca-json": "dist/bin/mca-json.mjs"
     },
     "scripts": {
-        "build": "rm -rf dist && tsc",
+        "build": "rm -rf dist && npm run build-index && tsc",
+        "build-index": "cd src; for F in $(grep '^export' -r . -l); do echo \"export * from '${F%.ts}';\"; done | LC_ALL=C sort > index.ts",
         "reinstall": "rm -rf node_modules package-lock.json && npm install"
     },
     "type": "module",
