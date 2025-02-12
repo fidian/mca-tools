@@ -44,6 +44,37 @@ mca-chunks ~/.minecraft/saves/Test_World/region/r.2.1.mca
 This can also read the MCA file from stdin or write the output to a file. See `mca-chunks --help` for usage instructions.
 
 
+### `mca-trim-chunks-without-signs` - Erase chunks
+
+Hides chunks in an MCA file if they do not have signs. If you want to change the seed of your server regularly, you could have players reserve 16x16 chunks by placing a sign anywhere in the chunk with any letters or numbers on it. These signs are different from naturally generating signs. The indexes will be overwritten with zeros to indicate that the data is no longer in the file, so Minecraft will regenerate the chunk the next time it is loaded.
+
+```
+# Trim chunks in your region files
+cd ~/.minecraft/saves/Test_World/
+mca-trim-chunks-without-signs region/*.mca DIM1/region/*.mca DIM-1/region/*.mca
+```
+
+Without using additional flags, this will trim chunks that currently have players. Check the usage with `mca-trim-chunks-without-signs --help` for additional options.
+
+For reference, the naturally generating signs will have message like the following.
+
+* Chairs in taiga villages: ["", "", "", ""] and ["", "", "", ""]
+* Igloo basements: ["", "<----", "---->", ""] and ["", "", "", ""]
+
+
+### `nbt-json` - Convert NBT data to JSON
+
+This is useful for seeing what's in a player's `*.dat` file. Simply loads and decompresses the NBT, then writes it as a JSON object.
+
+```
+# See all of the options available
+nbt-json --help
+
+# Convert an NBT file to JSON
+nbt-json ~/.minecraft/saves/Test_World/playerdata/b248e729-09c2-40dd-9168-12d191b4f0b8.dat
+```
+
+
 ## API
 
 

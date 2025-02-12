@@ -1,5 +1,6 @@
 import { BinaryData } from './binary-data';
 import { Chunk } from './chunk';
+import { Coords2d } from '../types/coords';
 import { inflate } from 'pako';
 import { Nbt } from '../nbt/nbt';
 
@@ -25,10 +26,44 @@ export class Anvil {
         return new Anvil(buffer);
     }
 
+    cachedLocationEntries: LocationEntry[] | null = null;
     data: BinaryData;
 
     constructor(data: ArrayBufferLike) {
         this.data = new BinaryData(data);
+    }
+
+    /**
+     * Returns the buffer that holds the Anvil data.
+     */
+    buffer(): ArrayBufferLike {
+        return this.data.buffer();
+    }
+
+    /**
+     * Delete a chunk. The location is either given in X,Z chunk coordinates or
+     * passed in from a Chunk object.
+     */
+    deleteChunk(chunkLocation: Coords2d | Chunk): void {
+        let index;
+
+        if (Array.isArray(chunkLocation)) {
+            index = this.chunkCoordinatesToIndex(chunkLocation);
+        } else {
+            const coords = chunkLocation.chunkCoordinates();
+
+            if (!coords) {
+                throw new Error('Chunk does not have coordinates');
+            }
+
+            index = this.chunkCoordinatesToIndex(coords);
+        }
+
+        // Clear cache before modifying location entries
+        this.cachedLocationEntries = null;
+        this.data.seek(index * 4);
+        this.data.setNByteInteger(0, 3);
+        this.data.setByte(0);
     }
 
     /**
@@ -52,6 +87,40 @@ export class Anvil {
             });
 
         return chunks;
+    }
+
+    // Gets a chunk using chunk coordinates.
+    getChunk(chunkCoords: Coords2d): Chunk | undefined {
+        const locationEntries = this.getLocationEntries();
+        const entry = locationEntries[this.chunkCoordinatesToIndex(chunkCoords)];
+
+        if (entry?.sectorCount > 0) {
+            const nbt = Nbt.fromBuffer(this.getChunkData(entry.offset));
+
+            return new Chunk(nbt);
+        }
+
+        return;
+    }
+
+    /**
+     * Convert from chunk coordinates to region-relative chunk coordinates, and
+     * then to an index.
+     */
+    private chunkCoordinatesToIndex(chunkCoords: Coords2d): number {
+        let regionChunkX = chunkCoords[0];
+        let regionChunkZ = chunkCoords[1];
+        const step = 4096 * 4096;
+
+        while (regionChunkX < 0) {
+            regionChunkX += step;
+        }
+
+        while (regionChunkZ < 0) {
+            regionChunkZ += step;
+        }
+
+        return (regionChunkX % 32) + (regionChunkZ % 32) * 32;
     }
 
     /**
@@ -88,6 +157,10 @@ export class Anvil {
      * the start of this method and advanced to the end during reading.
      */
     protected getLocationEntries(): LocationEntry[] {
+        if (this.cachedLocationEntries) {
+            return this.cachedLocationEntries;
+        }
+
         this.data.seek(0);
         const result: LocationEntry[] = [];
 
@@ -97,6 +170,8 @@ export class Anvil {
                 sectorCount: this.data.getByte(),
             });
         }
+
+        this.cachedLocationEntries = result;
 
         return result;
     }
