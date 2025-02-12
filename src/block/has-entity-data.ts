@@ -4,7 +4,6 @@ import { NbtCompound } from '../nbt/nbt-compound';
 
 export class HasEntityData extends Generic {
     override entityData: NbtCompound;
-    override readonly type: string = 'HAS_ENTITY_DATA';
 
     constructor(
         name: string,

@@ -8,14 +8,12 @@ import { NbtTagType } from '../nbt/nbt-tag-type';
 type SignText = [string, string, string, string];
 
 export class Sign extends HasEntityData {
-    override readonly type = 'SIGN';
-
-    signBackColor(): string | undefined {
+    backColor(): string | undefined {
         // 1.20+
         return this.entityData.findChild<NbtString>('back_text/color')?.data;
     }
 
-    signBackGlowingText(): boolean | undefined {
+    backGlowingText(): boolean | undefined {
         // 1.20+
         const byte = this.entityData.findChild<NbtByte>(
             'back_text/has_glowing_text'
@@ -29,7 +27,7 @@ export class Sign extends HasEntityData {
         return;
     }
 
-    signBackText(): SignText | undefined {
+    backText(): SignText | undefined {
         // 1.20+
         const backSnbt = this.entityData
             .findChild<NbtList<NbtString>>('back_text/messages')
@@ -43,7 +41,7 @@ export class Sign extends HasEntityData {
         return;
     }
 
-    signFrontColor(): string | undefined {
+    frontColor(): string | undefined {
         return (
             // 1.20+
             this.entityData.findChild<NbtString>('front_text/color')?.data ||
@@ -52,7 +50,7 @@ export class Sign extends HasEntityData {
         );
     }
 
-    signFrontGlowingText(): boolean | undefined {
+    frontGlowingText(): boolean | undefined {
         const byte =
             // 1.20+
             this.entityData.findChild<NbtByte>('front_text/has_glowing_text') ||
@@ -66,7 +64,7 @@ export class Sign extends HasEntityData {
         return;
     }
 
-    signFrontText(): SignText {
+    frontText(): SignText {
         // 1.20+
         const frontSnbt = this.entityData
             .findChild<NbtList<NbtString>>('front_text/messages')
@@ -91,7 +89,7 @@ export class Sign extends HasEntityData {
         throw new Error('Unknown format for sign text');
     }
 
-    signIsWaxed(): boolean | undefined {
+    isWaxed(): boolean | undefined {
         const tag = this.entityData.findChild<NbtByte>('waxed');
 
         if (!tag) {

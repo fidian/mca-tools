@@ -45,9 +45,9 @@ export class Chunk {
     blockEntities(): NbtList<NbtCompound> | undefined {
         return (
             // 1.18+
-            this.rootNbt.findChild('block_entities') ||
+            this.rootNbt.findChild<NbtList<NbtCompound>>('block_entities') ||
             // up to 1.17
-            this.rootNbt.findChild('Level/TileEntities')
+            this.rootNbt.findChild<NbtList<NbtCompound>>('Level/TileEntities')
         );
     }
 
@@ -76,14 +76,14 @@ export class Chunk {
     chunkCoordinates(): Coords2d | undefined {
         const x =
             // 1.18+
-            this.rootNbt.findChild('xPos') ||
+            this.rootNbt.findChild<NbtInt>('xPos') ||
             // up to 1.17
-            this.rootNbt.findChild('Level/xPos');
+            this.rootNbt.findChild<NbtInt>('Level/xPos');
         const z =
             // 1.18+
-            this.rootNbt.findChild('zPos') ||
+            this.rootNbt.findChild<NbtInt>('zPos') ||
             // up to 1.17
-            this.rootNbt.findChild('Level/zPos');
+            this.rootNbt.findChild<NbtInt>('Level/zPos');
 
         if (typeof x?.data !== 'number' || typeof z?.data !== 'number') {
             return;
@@ -331,9 +331,9 @@ export class Chunk {
     private sectionBlockStates(section: NbtCompound): NbtLongArray | undefined {
         return (
             // 1.18+
-            section.findChild('block_states/data') ||
+            section.findChild<NbtLongArray>('block_states/data') ||
             // up to 1.17
-            section.findChild('BlockStates')
+            section.findChild<NbtLongArray>('BlockStates')
         );
     }
 
@@ -345,9 +345,9 @@ export class Chunk {
     ): NbtList<NbtCompound> | undefined {
         return (
             // 1.18+
-            section.findChild('block_states/palette') ||
+            section.findChild<NbtList<NbtCompound>>('block_states/palette') ||
             // up to 1.17
-            section.findChild('Palette')
+            section.findChild<NbtList<NbtCompound>>('Palette')
         );
     }
 
@@ -357,9 +357,9 @@ export class Chunk {
     private sectionsTag(): NbtList<NbtCompound> | undefined {
         const section =
             // 1.18+
-            this.rootNbt.findChild('sections') ||
+            this.rootNbt.findChild<NbtList<NbtCompound>>('sections') ||
             // up to 1.17
-            this.rootNbt.findChild('Level/Sections');
+            this.rootNbt.findChild<NbtList<NbtCompound>>('Level/Sections');
 
         if (section && this.isValidChunkSection(section)) {
             return section;

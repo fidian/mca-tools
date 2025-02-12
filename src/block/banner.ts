@@ -1,4 +1,4 @@
-import { CustomName } from './custom-name';
+import { HasEntityData } from './has-entity-data';
 import { NbtCompound } from '../nbt/nbt-compound';
 import { NbtList } from '../nbt/nbt-list';
 import { NbtString } from '../nbt/nbt-string';
@@ -13,10 +13,8 @@ export interface BannerPattern {
     pattern: string | BannerPatternDefinition;
 }
 
-export class Banner extends CustomName {
-    override readonly type = 'BANNER';
-
-    bannerPatterns(): BannerPattern[] {
+export class Banner extends HasEntityData {
+    patterns(): BannerPattern[] {
         const patterns =
             this.entityData.findChild<NbtList<NbtCompound>>('Patterns');
 

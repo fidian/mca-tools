@@ -126,8 +126,20 @@ Returns an array with the X and Z real-world coordinates. The chunk will span fr
 
 All blocks will inherit from Generic. Other types of blocks are detected by their name. Below are the patterns and the type of block that will be produced if that filter matches. There's a built-in function that will be used to determine if a block is of a specific type. These are static methods on the `Block` class, which all take the name as the only parameter and return a boolean.
 
-* `Block.isBanner(name: string): boolean`
-* `Block.isSign(name: string): boolean`
+* `Block.isBanner(name: string): boolean` - Matches all banners
+* `Block.isBarrel(name: string): boolean`
+* `Block.isBeacon(name: string): boolean`
+* `Block.isBed(name: string): boolean`
+* `Block.isBeehive(name: string): boolean` - Matches beehives and bee nests
+* `Block.isBell(name: string): boolean`
+* `Block.isSign(name: string): boolean` - Matches all signs
+
+To add to this complexity, there are many blocks that support generic methods, such as `.customName()` and `.lock()`. Those are listed under `generic` in this documentation and called out special because they are not on all block instances.
+
+
+#### `generic.components(): NbtCompound | undefined`
+
+Associated data components for this block.
 
 
 #### `generic.coords: Coords3d`
@@ -135,9 +147,23 @@ All blocks will inherit from Generic. Other types of blocks are detected by thei
 The world coordinates of the block.
 
 
+#### `generic.customName(): string | undefined`
+
+Returns the custom name, used in the GUI when interacting with the block.
+
+*Method only exists if block supports a custom name.*
+
+
 #### `generic.entityData: NbtCompound | undefined`
 
 The NBT entity data associated with this block. If there is none, this is left `undefined`.
+
+
+#### `generic.lock(): string | undefined`
+
+Returns the item name needed to interact with the block.
+
+*Method only exists if block supports locking.*
 
 
 #### `generic.name: string`
@@ -145,7 +171,7 @@ The NBT entity data associated with this block. If there is none, this is left `
 The name of the block.
 
 
-#### `banner.bannerPatterns(): BannerPattern[]`
+#### `banner.patterns(): BannerPattern[]`
 
 Returns a list of banner pattern information applied to the banner, in order.
 
@@ -160,32 +186,67 @@ interface BannerPattern {
 ```
 
 
-#### `sign.signBackColor(): string | undefined`
+#### `barrel.items(): NbtList<NbtCompound>`
+
+The list of items in each slot of the barrel.
+
+
+#### `barrel.lootTable(): string | undefined`
+
+The loot table name for generating random contents.
+
+
+#### `barrel.lootTableSeed(): bigint | undefined`
+
+The seed to use when generating random contents. 0 means to use a random seed.
+
+
+#### `beacon.primaryEffect(): string | undefined`
+
+The primary effect name of the beacon.
+
+
+#### `beacon.secondaryEffect(): string | undefined`
+
+The secondary effect name of the beacon.
+
+
+#### `beehive.bees(): NbtList<NbtCompound> | undefined`
+
+Information about the bees within the beehive or bee nest.
+
+
+#### `beehive.flowerPos(): Coords3d | undefined`
+
+Location of the associated flower.
+
+
+#### `sign.backColor(): string | undefined`
 
 Returns the color of the text on the back of the sign for 1.20+. For older versions, this returns `undefined`.
 
 
-#### `sign.signBackGlowingText(): boolean | undefined`
+#### `sign.backGlowingText(): boolean | undefined`
 
 Returns `true` if the sign has glowing text on the back for 1.20+. For older versions, this returns `undefined`.
 
 
-#### `sign.signBackText(): string[] | undefined`
+#### `sign.backText(): string[] | undefined`
 
 Returns the four lines of text on the back of the sign for 1.20+. For older versions, this returns `undefined`.
 
 
-#### `sign.signFrontColor(): string | undefined`
+#### `sign.frontColor(): string | undefined`
 
 Returns the color of the text on the front of the sign.
 
 
-#### `sign.signFrontGlowingText(): boolean | undefined`
+#### `sign.frontGlowingText(): boolean | undefined`
 
 Returns `true` if the sign has glowing text on the front.
 
 
-#### `sign.signFrontText(): string[]`
+#### `sign.frontText(): string[]`
 
 Returns the four lines of text on the front of the sign.
 

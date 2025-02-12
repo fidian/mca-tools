@@ -4,6 +4,7 @@ import { Coords3d } from '../types/coords';
 import { NbtCompound } from '../nbt/nbt-compound';
 import { NbtList } from '../nbt/nbt-list';
 import { NbtLongArray } from '../nbt/nbt-long-array';
+import { NbtString } from '../nbt/nbt-string';
 
 const BLOCKS_PER_CHUNK = 16 * 16 * 16;
 const debugLog = debug('block-data');
@@ -66,7 +67,7 @@ export class BlockData {
         }
 
         for (let i = 0; i < paletteSize; i++) {
-            const name = palette.data[i].findChild('Name');
+            const name = palette.data[i].findChild<NbtString>('Name');
 
             if (name) {
                 paletteMap.set(i, name.data);
