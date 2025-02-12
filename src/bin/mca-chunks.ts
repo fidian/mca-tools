@@ -14,10 +14,6 @@ async function readInput(filename: string | undefined) {
 }
 
 const args: {
-    '--chunk-coords'?: string | string[];
-    '--compact'?: boolean;
-    '--condense'?: boolean;
-    '--list-chunk-coords'?: boolean;
     '<input>'?: string;
     '<output>'?: string;
 } = neodoc.run(
