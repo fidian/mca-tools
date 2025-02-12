@@ -14,6 +14,10 @@ export class BinaryData {
         return this.view.buffer;
     }
 
+    byteLength(): number {
+        return this.view.byteLength;
+    }
+
     currentPosition(): number {
         return this.position;
     }

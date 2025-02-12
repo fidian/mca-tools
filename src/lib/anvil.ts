@@ -38,6 +38,11 @@ export class Anvil {
      * @returns Chunk[] a list of Chunk objects
      */
     getAllChunks(): Chunk[] {
+        // Empty files can be written
+        if (this.data.byteLength() === 0) {
+            return [];
+        }
+
         const chunks = this.getLocationEntries()
             .filter((x) => x.sectorCount > 0)
             .map((offset) => {
