@@ -1,9 +1,7 @@
 import { HasEntityData } from './has-entity-data';
-import { Nbt } from '../nbt/nbt';
 import { NbtByte } from '../nbt/nbt-byte';
 import { NbtList } from '../nbt/nbt-list';
 import { NbtString } from '../nbt/nbt-string';
-import { NbtTagType } from '../nbt/nbt-tag-type';
 
 type SignText = [string, string, string, string];
 
@@ -34,7 +32,7 @@ export class Sign extends HasEntityData {
             ?.data.map((tag) => tag.data);
 
         if (this.isSignText(backSnbt)) {
-            return this.snbtToText(backSnbt);
+            return backSnbt;
         }
 
         // Up to 1.19
@@ -71,7 +69,7 @@ export class Sign extends HasEntityData {
             ?.data.map((tag) => tag.data);
 
         if (this.isSignText(frontSnbt)) {
-            return this.snbtToText(frontSnbt);
+            return frontSnbt;
         }
 
         // Up to 1.19
@@ -83,7 +81,7 @@ export class Sign extends HasEntityData {
         ].filter((tag): tag is string => !!tag);
 
         if (this.isSignText(frontOldSnbt)) {
-            return this.snbtToText(frontOldSnbt);
+            return frontOldSnbt;
         }
 
         throw new Error('Unknown format for sign text');
@@ -103,19 +101,5 @@ export class Sign extends HasEntityData {
 
     private isSignText(value?: string[]): value is SignText {
         return value?.length === 4;
-    }
-
-    private snbtToText(snbtList: SignText): SignText {
-        return snbtList.map((snbt) => {
-            const tag = Nbt.fromSnbt(snbt);
-
-            // 1.20 and newer
-            if (tag.type === NbtTagType.STRING) {
-                return tag.data;
-            }
-
-            // Up to 1.19
-            return tag.findChild<NbtString>('text')?.data ?? '';
-        }) as SignText;
     }
 }
