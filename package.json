@@ -1,28 +1,28 @@
 {
     "name": "mca-json",
-    "version": "0.0.0",
-    "description": "Convert Minecraft MCA into JSON and back, or modify directly in memory.",
+    "version": "1.0.0",
+    "description": "Convert Minecraft MCA (Anvil files) and NBT into JSON and back, or modify directly in memory. Works on region files and player data.",
     "bin": {
-        "mca-chunks": "dist/bin/mca-chunks.mjs",
-        "mca-json": "dist/bin/mca-json.mjs"
+        "mca-chunks": "dist/bin/mca-chunks.js",
+        "mca-json": "dist/bin/mca-json.js"
     },
     "scripts": {
         "build": "rm -rf dist && npm run build-index && tsc",
-        "build-index": "cd src; for F in $(grep '^export' -r . -l --include \\*.ts); do echo \"export * from '${F%.ts}';\"; done | LC_ALL=C sort > index.ts",
+        "build-index": "cd src; for F in $(grep '^export' -r . -l --include \\*.ts --exclude index.ts); do echo \"export * from '${F%.ts}';\"; done | LC_ALL=C sort > index.ts",
         "reinstall": "rm -rf node_modules package-lock.json && npm install"
     },
     "type": "module",
     "main": "dist/index.mjs",
     "dependencies": {
-        "@types/node": "^22.12.0",
-        "debug": "^4.4.0",
-        "get-stdin": "^9.0.0",
+        "@types/node": "^25.2.3",
+        "debug": "^4.4.3",
+        "get-stdin": "^10.0.0",
         "neodoc": "^2.0.2",
         "pako": "^2.1.0"
     },
     "devDependencies": {
         "@types/debug": "^4.1.12",
-        "@types/pako": "^2.0.3",
-        "typescript": "^5.7.3"
+        "@types/pako": "^2.0.4",
+        "typescript": "^5.9.3"
     }
 }

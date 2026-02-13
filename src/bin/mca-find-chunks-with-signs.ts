@@ -5,7 +5,7 @@ import neodoc from 'neodoc';
 import { Anvil } from '../lib/anvil';
 import { Chunk } from '../lib/chunk';
 import { Sign } from '../block/sign';
-import { readFile, writeFile } from 'node:fs/promises';
+import { readFile } from 'node:fs/promises';
 
 const debugLog = debug('mca-find-chunks-with-signs');
 const args: {

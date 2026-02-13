@@ -5,7 +5,7 @@ import getStdin from 'get-stdin';
 import neodoc from 'neodoc';
 import { inflate } from 'pako';
 import { Nbt } from '../nbt/nbt';
-import { readFile, writeFile } from 'node:fs/promises';
+import { readFile } from 'node:fs/promises';
 
 const debugLog = debug('mca-trim-chunks-without-signs');
 main();
@@ -84,14 +84,19 @@ async function processFile(filename: string) {
 
     const nbt = Nbt.fromBuffer(buffer);
 
-    const dimension = nbt.findChild('Dimension').data;
-    const x = nbt.findChild('Pos/0').data;
-    const y = nbt.findChild('Pos/1').data;
-    const z = nbt.findChild('Pos/2').data;
+    const dimension = nbt.findChild('Dimension')?.data;
+    const x = nbt.findChild('Pos/0')?.data;
+    const y = nbt.findChild('Pos/1')?.data;
+    const z = nbt.findChild('Pos/2')?.data;
+
+    if (typeof dimension !== 'string' || typeof x !== 'number' || typeof y !== 'number' || typeof z !== 'number') {
+        console.error(`NBT file ${filename} does not contain valid player location data.`);
+        process.exit(1);
+    }
+
     const chunkX = Math.floor(x / 16);
     const chunkZ = Math.floor(z / 16);
 
     const output = [dimension, Math.round(x), Math.round(y), Math.round(z), chunkX, chunkZ];
     console.log(output.join('\t'));
-
 }
