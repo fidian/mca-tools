@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 import debug from 'debug';
 import neodoc from 'neodoc';
 import { Anvil } from '../lib/anvil';

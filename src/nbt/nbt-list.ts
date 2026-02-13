@@ -47,13 +47,6 @@ export class NbtList<T extends NbtBase<any>> extends NbtBase<T[]> {
     override findChild<RESULT extends NbtBase<any>>(
         path: string
     ): RESULT | undefined {
-        if (this.subtype !== NbtTagType.COMPOUND) {
-            debugLogFindChild(
-                `LIST, name ${this.name}, subtype ${this.subtype}, path ${path}, not compound`
-            );
-            return;
-        }
-
         const pathSegments = path.split('/');
         const currentSegment = pathSegments.shift();
 
