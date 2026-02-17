@@ -3,7 +3,9 @@ MCA Tools
 
 Command-line tools to work with Minecraft Anvil files (`*.mca`), from version 1.21.4 or newer. Support could be added to earlier versions incrementally as needed.
 
-To install, first you need to install Node.js, then use `npm` to install the package. (Deno and Bun users can use this too, but you'll need to use your tool to do the install.)
+This is also a library to let you parse MCA files, NBT files, and SNBT strings in your own JavaScript programs. The library is written in TypeScript and has type definitions for all of the classes and methods.
+
+To install, first you need to install Node.js, then use `npm` to install the package. Deno, Bun, pnpm, and other users can use this too - adjust the next command as you see fit.
 
 ```
 npm install -g mca-tools
@@ -97,6 +99,7 @@ Loads data into an Anvil class.
 #### `anvil.data`
 
 The `ArrayBuffer` used. Nothing gets parsed right away and is all loaded and parsed on demand.
+
 
 #### `anvil.getAllChunks(): Chunk[]`
 
