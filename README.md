@@ -1,5 +1,5 @@
-MCA Tools
-=========
+MCA JSON
+========
 
 Command-line tools to work with Minecraft Anvil files (`*.mca`), from version 1.21.4 or newer. Support could be added to earlier versions incrementally as needed.
 
@@ -8,7 +8,7 @@ This is also a library to let you parse MCA files, NBT files, and SNBT strings i
 To install, first you need to install Node.js, then use `npm` to install the package. Deno, Bun, pnpm, and other users can use this too - adjust the next command as you see fit.
 
 ```
-npm install -g mca-tools
+npm install -g mca-json
 ```
 
 After that, you'll have access to all of these fine utilities.
@@ -83,7 +83,7 @@ nbt-json ~/.minecraft/saves/Test_World/playerdata/b248e729-09c2-40dd-9168-12d191
 ### `class Anvil`
 
 ```
-import { Anvil } from 'mca-tools';
+import { Anvil } from 'mca-json';
 import { readFile } from 'node:fs/promises';
 
 const data = await readFile('r.0.0.mca');
