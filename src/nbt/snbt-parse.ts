@@ -38,6 +38,7 @@ const tokenParsers: TokenParser[] = [
         type: 'WHITESPACE',
         pattern: /^\s+/,
         callback: (_pos, _type, _snbtData, matches) => {
+            // Do not generate a token for whitespace.
             return matches[0].length;
         },
     },
@@ -130,10 +131,10 @@ const tokenParsers: TokenParser[] = [
             snbtData.addToken(
                 pos,
                 type,
-                matches[0].toLowerCase() === 'true' ? '1' : '0'
+                matches[1].toLowerCase() === 'true' ? '1' : '0'
             );
 
-            return matches[0].length;
+            return matches[1].length;
         },
     },
     {
@@ -228,9 +229,10 @@ const tokenParsers: TokenParser[] = [
 ];
 
 // Creates a regular expression that will start at the beginning of the string
-// and conclude with an "end of token" marker at the end.
+// and conclude with an "end of token" marker at the end. The lookahead will
+// not capture the end of the token marker.
 function anchorPattern(pattern: string) {
-    return new RegExp(`^${pattern}\s*(?:$|,|}|]|:)`);
+    return new RegExp(`^${pattern}\s*(?=$|,|}|]|:)`);
 }
 
 export function snbtParse(snbt: string) {
@@ -249,6 +251,7 @@ export function snbtParse(snbt: string) {
             throw new Error(`Unexpected token at position ${pos}`);
         }
 
+        debugLog(`Increment position by ${increment}`);
         pos += increment;
     }
 

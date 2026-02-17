@@ -45,7 +45,10 @@ function snbtToNbtByte(token: SnbtToken): NbtByte {
     return new NbtByte(parseInt(token.content || ''));
 }
 
-function snbtToNbtByteArray(_token: SnbtToken, snbtData: SnbtData): NbtByteArray {
+function snbtToNbtByteArray(
+    _token: SnbtToken,
+    snbtData: SnbtData
+): NbtByteArray {
     const bytes: number[] = [];
     let token = snbtData.token();
 
@@ -55,11 +58,15 @@ function snbtToNbtByteArray(_token: SnbtToken, snbtData: SnbtData): NbtByteArray
         try {
             token = snbtData.token();
         } catch (err) {
-            throw new Error(`${err} - Unexpected end of SNBT data while parsing byte array`);
+            throw new Error(
+                `${err} - Unexpected end of SNBT data while parsing byte array`
+            );
         }
 
         if (token.type !== 'COMMA') {
-            throw new Error(`Expecting a comma but found ${snbtData.showToken(token)}`);
+            throw new Error(
+                `Expecting a comma but found ${snbtData.showToken(token)}`
+            );
         }
 
         token = snbtData.token();
@@ -74,7 +81,9 @@ function snbtToNbtCompound(_token: SnbtToken, snbtData: SnbtData): NbtCompound {
 
     while (token && token.type !== 'COMPOUND_END') {
         if (token.type !== 'STRING') {
-            throw new Error(`Expecting a string but found ${snbtData.showToken(token)}`);
+            throw new Error(
+                `Expecting a string but found ${snbtData.showToken(token)}`
+            );
         }
 
         const name = token.content;
@@ -83,17 +92,31 @@ function snbtToNbtCompound(_token: SnbtToken, snbtData: SnbtData): NbtCompound {
         try {
             colon = snbtData.token();
         } catch (err) {
-            throw new Error(`${err} - Unexpected end of SNBT data while looking for colon`);
+            throw new Error(
+                `${err} - Unexpected end of SNBT data while looking for colon`
+            );
         }
 
         if (colon.type !== 'COLON') {
-            throw new Error(`Expecting a colon but found ${snbtData.showToken(colon)}`);
+            throw new Error(
+                `Expecting a colon but found ${snbtData.showToken(colon)}`
+            );
         }
 
         const nbt = snbtToNbt(snbtData);
         nbt.name = name;
         data.push(nbt);
         token = snbtData.token();
+
+        if (token && token.type === 'COMMA') {
+            try {
+                token = snbtData.token();
+            } catch (err) {
+                throw new Error(
+                    `${err} - Unexpected end of SNBT data while looking for token after comma`
+                );
+            }
+        }
     }
 
     return new NbtCompound(data);
@@ -115,20 +138,23 @@ function snbtToNbtIntArray(_token: SnbtToken, snbtData: SnbtData): NbtIntArray {
     const ints: number[] = [];
     let token = snbtData.token();
 
-    while (token && token.type === 'INT') {
+    // The fallback double parser can be used for integers too.
+    while (token && (token.type === 'INT' || token.type === 'DOUBLE')) {
         ints.push(parseInt(token.content || ''));
 
         try {
             token = snbtData.token();
         } catch (err) {
-            throw new Error(`${err} - Unexpected end of SNBT data while parsing int array`);
+            throw new Error(
+                `${err} - Unexpected end of SNBT data while parsing int array`
+            );
         }
 
-        if (token.type !== 'COMMA') {
-            throw new Error(`Expecting a comma but found ${snbtData.showToken(token)}`);
+        // If we see a comma, we expect another number after it. If not, we
+        // expect the end of the array.
+        if (token.type === 'COMMA') {
+            token = snbtData.token();
         }
-
-        token = snbtData.token();
     }
 
     return new NbtIntArray(ints);
@@ -141,7 +167,9 @@ function snbtToNbtList(_token: SnbtToken, snbtData: SnbtData): NbtList<any> {
     try {
         token = snbtData.token();
     } catch (err) {
-        throw new Error(`${err} - Unexpected end of SNBT data while parsing list at beginning`);
+        throw new Error(
+            `${err} - Unexpected end of SNBT data while parsing list at beginning`
+        );
     }
 
     while (token.type !== 'LIST_END') {
@@ -161,22 +189,30 @@ function snbtToNbtList(_token: SnbtToken, snbtData: SnbtData): NbtList<any> {
             try {
                 token = snbtData.token();
             } catch (err) {
-                throw new Error(`${err} - Unexpected end of SNBT data while looking for comma or end of list`);
+                throw new Error(
+                    `${err} - Unexpected end of SNBT data while looking for comma or end of list`
+                );
             }
         } else if (token.type !== 'LIST_END') {
-            throw new Error(`Expecting a comma or list end but found ${snbtData.showToken(token)}`);
+            throw new Error(
+                `Expecting a comma or list end but found ${snbtData.showToken(token)}`
+            );
         }
     }
 
     if (!list.length) {
-        throw new Error('Empty list not allowed in SNBT because the type cannot be inferred');
+        throw new Error(
+            'Empty list not allowed in SNBT because the type cannot be inferred'
+        );
     }
 
     const firstType = list[0].type;
 
     for (let i = 1; i < list.length; i++) {
         if (list[i].type !== firstType) {
-            throw new Error(`List contains mixed types: ${firstType} and ${list[i].type}`);
+            throw new Error(
+                `List contains mixed types: ${firstType} and ${list[i].type}`
+            );
         }
     }
 
@@ -187,7 +223,10 @@ function snbtToNbtLong(token: SnbtToken): NbtLong {
     return new NbtLong(BigInt(token.content.slice(0, -1) || ''));
 }
 
-function snbtToNbtLongArray(_token: SnbtToken, snbtData: SnbtData): NbtLongArray {
+function snbtToNbtLongArray(
+    _token: SnbtToken,
+    snbtData: SnbtData
+): NbtLongArray {
     const longs: bigint[] = [];
     let token = snbtData.token();
 
@@ -197,11 +236,15 @@ function snbtToNbtLongArray(_token: SnbtToken, snbtData: SnbtData): NbtLongArray
         try {
             token = snbtData.token();
         } catch (err) {
-            throw new Error(`${err} - Unexpected end of SNBT data while parsing long array`);
+            throw new Error(
+                `${err} - Unexpected end of SNBT data while parsing long array`
+            );
         }
 
         if (token.type !== 'COMMA') {
-            throw new Error(`Expecting a comma but found ${snbtData.showToken(token)}`);
+            throw new Error(
+                `Expecting a comma but found ${snbtData.showToken(token)}`
+            );
         }
 
         token = snbtData.token();
