@@ -61,9 +61,11 @@ export class Anvil {
 
         // Clear cache before modifying location entries
         this.cachedLocationEntries = null;
-        this.data.seek(index * 4);
-        this.data.setNByteInteger(0, 3);
-        this.data.setByte(0);
+        this.data.seek(index * 4); // Go to the pointer location for this chunk
+        this.data.setNByteInteger(0, 3); // Erase the offset
+        this.data.setByte(0); // Erase the sector count
+
+        // The actual chunk data is still present in the file.
     }
 
     /**

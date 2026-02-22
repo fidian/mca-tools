@@ -12,6 +12,7 @@ import { Coords2d, Coords3d } from '../types/coords';
 import { NbtBase } from '../nbt/nbt-base';
 import { NbtCompound } from '../nbt/nbt-compound';
 import { NbtInt } from '../nbt/nbt-int';
+import { NbtIntArray } from '../nbt/nbt-int-array';
 import { NbtList } from '../nbt/nbt-list';
 import { NbtLong } from '../nbt/nbt-long';
 import { NbtLongArray } from '../nbt/nbt-long-array';
@@ -75,21 +76,28 @@ export class Chunk {
      */
     chunkCoordinates(): Coords2d | undefined {
         const x =
-            // 1.18+
+            // 1.18+ region chunks
             this.rootNbt.findChild<NbtInt>('xPos') ||
-            // up to 1.17
+            // up to 1.17 region chunks
             this.rootNbt.findChild<NbtInt>('Level/xPos');
         const z =
-            // 1.18+
+            // 1.18+ region chunks
             this.rootNbt.findChild<NbtInt>('zPos') ||
-            // up to 1.17
+            // up to 1.17 region chunks
             this.rootNbt.findChild<NbtInt>('Level/zPos');
 
-        if (typeof x?.data !== 'number' || typeof z?.data !== 'number') {
-            return;
+        if (typeof x?.data === 'number' && typeof z?.data === 'number') {
+            return [x.data, z.data];
         }
 
-        return [x.data, z.data];
+        // Check for entity chunks
+        const position = this.rootNbt.findChild<NbtIntArray>('Position');
+
+        if (position && position.data.length === 2) {
+            return [position.data[0], position.data[1]];
+        }
+
+        return;
     }
 
     /**

@@ -1,6 +1,6 @@
 {
     "name": "mca-json",
-    "version": "1.0.5",
+    "version": "1.1.0",
     "description": "Convert Minecraft MCA (Anvil files) and NBT into JSON and back, or modify directly in memory. Works on region files and player data.",
     "bin": {
         "mca-chunks": "dist/bin/mca-chunks.js",
@@ -21,7 +21,7 @@
     },
     "devDependencies": {
         "@types/debug": "^4.1.12",
-        "@types/node": "^25.2.3",
+        "@types/node": "^25.3.0",
         "@types/pako": "^2.0.4",
         "typescript": "^5.9.3"
     }

@@ -19,14 +19,16 @@ const args: {
 Scans a player NBT data file for the player location and prints it to stdout.
 NBT files can be compressed or uncompressed and this tool can handle both. If the filename is "-" or not provided, this will read from stdin.
 
-The output shows the following tab delimited fields:
+The output is JSON with the following fields:
 
-* Dimension: "minecraft:overworld", "minecraft:the_nether", or "minecraft:the_end"
-* X: The player's X coordinate, rounded
-* Y: The player's Y coordinate, rounded
-* Z: The player's Z coordinate, rounded
-* chunkX: The player's chunk X coordinate
-* chunkZ: The player's chunk Z coordinate
+{
+    "chunkX": 7,                            # player's chunk X coordinate
+    "chunkZ": -29                           # player's chunk Z coordinate
+    "x": 123,                               # player's X coordinate, rounded
+    "y": 64,                                # player's Y coordinate, rounded
+    "z": -456,                              # player's Z coordinate, rounded
+    "dimension": "minecraft:overworld",     # or "minecraft:the_nether" or "minecraft:the_end"
+}
 
 Options:
     -h, --help      Show this message.
@@ -96,7 +98,13 @@ async function processFile(filename: string) {
 
     const chunkX = Math.floor(x / 16);
     const chunkZ = Math.floor(z / 16);
-
-    const output = [dimension, Math.round(x), Math.round(y), Math.round(z), chunkX, chunkZ];
-    console.log(output.join('\t'));
+    const output = {
+        chunkX,
+        chunkZ,
+        x: Math.round(x),
+        y: Math.round(y),
+        z: Math.round(z),
+        dimension,
+    };
+    console.log(JSON.stringify(output, null, 4));
 }

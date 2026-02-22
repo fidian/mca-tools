@@ -3,8 +3,8 @@ import { NbtLongArray } from '../nbt/nbt-long-array';
 
 const debugLog = debug('bit-data');
 
-// At most, we will have 7 bits to mask
-const MASK = [0, 1, 3, 7, 15, 31, 63, 127];
+// At most, we will have 8 bits to mask
+const MASK = [0, 1, 3, 7, 15, 31, 63, 127, 255];
 
 export class BitData {
     static fromLongArrayTag(tag: NbtLongArray): BitData {

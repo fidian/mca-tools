@@ -46,23 +46,55 @@ mca-chunks ~/.minecraft/saves/Test_World/region/r.2.1.mca
 This can also read the MCA file from stdin or write the output to a file. See `mca-chunks --help` for usage instructions.
 
 
-### `mca-trim-chunks-without-signs` - Erase chunks
+### `mca-find-signs` - Lists all signs in MCA files
 
-Hides chunks in an MCA file if they do not have signs. If you want to change the seed of your server regularly, you could have players reserve 16x16 chunks by placing a sign anywhere in the chunk with any letters or numbers on it. These signs are different from naturally generating signs. The indexes will be overwritten with zeros to indicate that the data is no longer in the file, so Minecraft will regenerate the chunk the next time it is loaded.
+This utility will list all signs in the given MCA files, along with their coordinates and text. The output is a JSON array of objects, each with the following properties:
 
 ```
-# Trim chunks in your region files
-cd ~/.minecraft/saves/Test_World/
-mca-trim-chunks-without-signs region/*.mca DIM1/region/*.mca DIM-1/region/*.mca
+{
+    "chunkX": number,
+    "chunkZ": number,
+    "x": number,
+    "y": number,
+    "z": number,
+    "front": string[],
+    "back": string[] | undefined
+}
 ```
 
-Without using additional flags, this will trim chunks that currently have players. Check the usage with `mca-trim-chunks-without-signs --help` for additional options.
+Signs can be filtered to look for blank signs, signs with any letter or number, or signs that could be naturally generated.
 
 For reference, the naturally generating signs will have message like the following.
 
 * Chairs in taiga villages: ["", "", "", ""] and ["", "", "", ""]
 * Igloo basements: ["", "<----", "---->", ""] and ["", "", "", ""]
 
+
+### `mca-json` - Convert MCA to JSON
+
+Exports the whole MCA file or just a single chunk to JSON. Very useful to see what's in the file, but the output can be extremely large.
+
+
+### `mca-remove-chunks` - Erase chunks
+
+Removes the offset and segment size of chunks in MCA files, which will cause Minecraft to forget about those chunks when they are loaded. This is useful for regenerating chunks. You can preserve or remove specific chunks with command-line arguments.
+
+```
+mca-remove-chunks --preserve=-90,118 ~/.minecraft/saves/Test_World/region/r.-3.3.mca
+```
+
+
+### `nbt-get-player-location` - Get player location from a `*.dat` file
+
+This utility will read the player's `*.dat` file and get the player's current location. The output is a JSON object with the following properties:
+
+```
+{
+    "x": number,
+    "y": number,
+    "z": number
+}
+```
 
 ### `nbt-json` - Convert NBT data to JSON
 
@@ -78,6 +110,8 @@ nbt-json ~/.minecraft/saves/Test_World/playerdata/b248e729-09c2-40dd-9168-12d191
 
 
 ## API
+
+Are you here to do some coding? This library is also available for use in your own JavaScript programs. Below is the documentation for the API. All methods and classes are fully typed with TypeScript, so you can get autocomplete and type checking in your editor.
 
 
 ### `class Anvil`
@@ -370,7 +404,6 @@ Special notes about the above example:
 
 This has been loosely tested with the following editions. Other versions should work as well. If not, please supply a test MCA file and a description of the problem, or submit a pull request.
 
+* Java, 1.21.11, data version 4671.
 * Java, 1.21.4, data version 4189.
 * Java, 1.17.1, data version 2730.
-
-Other versions can be supported through pull requests that contain tests to verify loading and processing works.
