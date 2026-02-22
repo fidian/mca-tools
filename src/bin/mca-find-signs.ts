@@ -139,7 +139,7 @@ function processChunk(chunk: Chunk): SignInfo[] {
 
     for (const blockName of blockNames) {
         if (blockName.match(/^minecraft:.+_sign$/)) {
-            debugLog(`Found sign: ${blockName}`);
+            debugLog(`Chunk lists sign name: ${blockName}`);
 
             const listOfBlockCoordinates = chunk.findBlocksByName(blockName);
 

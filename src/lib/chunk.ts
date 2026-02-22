@@ -10,6 +10,7 @@ import { Block, BlockInstance } from '../block/block';
 import { BlockData } from './block-data';
 import { Coords2d, Coords3d } from '../types/coords';
 import { NbtBase } from '../nbt/nbt-base';
+import { NbtByte } from '../nbt/nbt-byte';
 import { NbtCompound } from '../nbt/nbt-compound';
 import { NbtInt } from '../nbt/nbt-int';
 import { NbtIntArray } from '../nbt/nbt-int-array';
@@ -149,7 +150,7 @@ export class Chunk {
 
         const index = blockData.chunkCoordinatesToIndex([
             xChunk,
-            coords[1] % 16,
+            ((coords[1] % 16) + 16) % 16, // Handle negative Y coordinates
             zChunk,
         ]);
         const name = blockData.getBlockByIndex(index);
@@ -377,21 +378,22 @@ export class Chunk {
     }
 
     /**
-     * Returns the Y coordinate of a section, which goes from 0 to 256. If you want the world coordinate, pass true to get -128 to 4031.
+     * Returns the Y coordinate of a section, which goes from -4 to 19. If you
+     * want the world coordinate, pass true to get -64 to 304. The maximum supported
+     * range is -128 to 127 (chunk coordinates) or -2048 to 2032 (world coordinates).
      */
     private sectionY(section: NbtCompound, useWorldCoordinate = false): number {
-        const ySection = section.findChild<NbtInt>('Y')?.data || 0;
+        let ySection = section.findChild<NbtByte>('Y')?.data || 0;
+
+        // If the high bit is on, it's negative because this byte is a signed short.
+        if (ySection >= 128) {
+            ySection -= 256;
+        }
 
         if (!useWorldCoordinate) {
             return ySection;
         }
 
-        let yWorld = ySection * 16;
-
-        if (yWorld >= 4032) {
-            yWorld -= 4096;
-        }
-
-        return yWorld;
+        return ySection * 16;
     }
 }
