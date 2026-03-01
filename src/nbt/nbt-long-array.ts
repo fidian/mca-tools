@@ -10,7 +10,7 @@ export class NbtLongArray extends NbtBase<bigint[]> {
         name ??= NbtLongArray.readName(bd);
         const data: bigint[] = [];
         const length = bd.getInt();
-        debugLogFromBinaryData(`LONG_ARRAY, name ${name}, length ${length}`);
+        debugLogFromBinaryData('LONG_ARRAY, name %s, length %d', name, length);
 
         for (let i = 0; i < length; i++) {
             // This needs to be able to be converted back to a bit stream in
@@ -18,7 +18,7 @@ export class NbtLongArray extends NbtBase<bigint[]> {
             data.push(bd.getInt64LE());
         }
 
-        debugLogFromBinaryData(`LONG_ARRAY, name ${name}, data ${data}`);
+        debugLogFromBinaryData('LONG_ARRAY, name %s, data length %d', name, data.length);
 
         return new NbtLongArray(data, name);
     }

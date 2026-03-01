@@ -24,7 +24,7 @@ function testParsers(
         const match = str.match(pattern);
 
         if (match) {
-            debugLog(`Matched ${type} at position ${pos}: ${match[0]}`);
+            debugLog('Matched %s at position %d: %s', type, pos, match[0]);
 
             return callback(pos, type, snbtData, match);
         }
@@ -251,7 +251,7 @@ export function snbtParse(snbt: string) {
             throw new Error(`Unexpected token at position ${pos}`);
         }
 
-        debugLog(`Increment position by ${increment}`);
+        debugLog('Increment position by %d', increment);
         pos += increment;
     }
 

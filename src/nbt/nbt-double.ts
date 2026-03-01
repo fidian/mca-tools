@@ -9,7 +9,7 @@ export class NbtDouble extends NbtBase<number> {
     static fromBinaryData(bd: BinaryData, name?: string): NbtDouble {
         name ??= NbtDouble.readName(bd);
         const data = bd.getDouble();
-        debugLogFromBinaryData(`DOUBLE, name ${name}, data ${data}`);
+        debugLogFromBinaryData('DOUBLE, name %s, data %d', name, data);
 
         return new NbtDouble(data, name);
     }

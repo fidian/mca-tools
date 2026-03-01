@@ -56,11 +56,11 @@ Options:
 
 async function readInput(filename: string | undefined) {
     if (!filename || filename === '-') {
-        debugLog(`Reading from stdin`);
+        debugLog('Reading from stdin');
         return await getStdin.buffer();
     }
 
-    debugLog(`Reading file: ${filename}`);
+    debugLog('Reading file: %s', filename);
 
     return readFile(filename);
 }

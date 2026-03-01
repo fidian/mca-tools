@@ -9,7 +9,7 @@ export class NbtInt extends NbtBase<number> {
     static fromBinaryData(bd: BinaryData, name?: string): NbtInt {
         name ??= NbtInt.readName(bd);
         const data = bd.getInt();
-        debugLogFromBinaryData(`INT, name ${name}, data ${data}`);
+        debugLogFromBinaryData('INT, name %s, data %d', name, data);
 
         return new NbtInt(data, name);
     }

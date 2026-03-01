@@ -112,7 +112,7 @@ async function processFile(
     filename: string,
     determinator: (chunkKey: string) => boolean
 ) {
-    debugLog(`Reading file: ${filename}`);
+    debugLog('Reading file: %s', filename);
 
     if (args['--verbose']) {
         console.log(`Reading file: ${filename}`);
@@ -127,13 +127,13 @@ async function processFile(
         const chunkKey = chunk.chunkKey() || '';
 
         if (determinator(chunkKey)) {
-            debugLog(`Preserving chunk: ${chunkKey}`);
+            debugLog('Preserving chunk: %s', chunkKey);
 
             if (args['--verbose']) {
                 console.log(`Preserving chunk: ${chunkKey}`);
             }
         } else {
-            debugLog(`Removing chunk: ${chunkKey}`);
+            debugLog('Removing chunk: %s', chunkKey);
 
             if (args['--verbose']) {
                 console.log(`Removing chunk: ${chunkKey}`);

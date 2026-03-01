@@ -10,13 +10,13 @@ export class NbtIntArray extends NbtBase<number[]> {
         name ??= NbtIntArray.readName(bd);
         const data: number[] = [];
         const length = bd.getInt();
-        debugLogFromBinaryData(`INT_ARRAY, name ${name}, length ${length}`);
+        debugLogFromBinaryData('INT_ARRAY, name %s, length %d', name, length);
 
         for (let i = 0; i < length; i++) {
             data.push(bd.getInt());
         }
 
-        debugLogFromBinaryData(`INT_ARRAY, name ${name}, data ${data}`);
+        debugLogFromBinaryData('INT_ARRAY, name %s, data %o', name, data);
 
         return new NbtIntArray(data, name);
     }

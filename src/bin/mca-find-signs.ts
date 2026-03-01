@@ -102,7 +102,7 @@ for (const file of args.MCA_FILE) {
 console.log(JSON.stringify(signs, null, 4));
 
 async function processFile(filename: string): Promise<SignInfo[]> {
-    debugLog(`Reading file: ${filename}`);
+    debugLog('Reading file: %s', filename);
 
     if (args['--verbose']) {
         console.log(`Reading file: ${filename}`);
@@ -118,7 +118,7 @@ async function processFile(filename: string): Promise<SignInfo[]> {
         const signs = processChunk(chunk);
 
         if (signs.length > 0) {
-            debugLog(`Found ${signs.length} signs in chunk ${chunkKey}.`);
+            debugLog('Found %d signs in chunk: %s', signs.length, chunkKey);
 
             if (args['--verbose']) {
                 console.log(
@@ -139,7 +139,7 @@ function processChunk(chunk: Chunk): SignInfo[] {
 
     for (const blockName of blockNames) {
         if (blockName.match(/^minecraft:.+_sign$/)) {
-            debugLog(`Chunk lists sign name: ${blockName}`);
+            debugLog('Chunk lists sign name: %s', blockName);
 
             const listOfBlockCoordinates = chunk.findBlocksByName(blockName);
 
@@ -150,7 +150,7 @@ function processChunk(chunk: Chunk): SignInfo[] {
             }
 
             for (const coords of listOfBlockCoordinates) {
-                debugLog(`Checking block at coordinates: ${coords}`);
+                debugLog('Checking block at coordinates: %o', coords);
                 const block = chunk.getBlock(coords);
 
                 if (!(block instanceof Sign)) {
@@ -162,24 +162,24 @@ function processChunk(chunk: Chunk): SignInfo[] {
                 const front = block.frontText();
                 const back = block.backText();
                 const text = [...front, ...(back ?? [])].join('');
-                debugLog(`Front: ${JSON.stringify(front)}`);
-                debugLog(`Back: ${JSON.stringify(back)}`);
+                debugLog('Front: %o', front);
+                debugLog('Back: %o', back);
 
                 if (args['--blank'] && text.length !== 0) {
-                    debugLog(`Skipping non-blank sign.`);
+                    debugLog('Skipping non-blank sign.');
                     continue;
                 }
 
                 if (args['--generated'] && !text.match(/^[^a-z0-9]*$/i)) {
-                    debugLog(`Skipping user-created sign.`);
+                    debugLog('Skipping user-created sign.');
                 }
 
                 if (args['--user'] && !text.match(/[a-z0-9]/i)) {
-                    debugLog(`Skipping a possible generated sign.`);
+                    debugLog('Skipping a possibly generated sign.');
                     continue;
                 }
 
-                debugLog(`Found a matching sign.`);
+                debugLog('Found a matching sign.');
 
                 if (args['--verbose']) {
                     console.log(

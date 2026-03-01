@@ -9,7 +9,7 @@ export class NbtByte extends NbtBase<number> {
     static fromBinaryData(bd: BinaryData, name?: string): NbtByte {
         name ??= NbtByte.readName(bd);
         const data = bd.getByte();
-        debugLogFromBinaryData(`BYTE, name ${name}, data ${data}`);
+        debugLogFromBinaryData('BYTE, name %s, data %d', name, data);
 
         return new NbtByte(data, name);
     }

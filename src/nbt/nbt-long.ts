@@ -9,7 +9,7 @@ export class NbtLong extends NbtBase<bigint> {
     static fromBinaryData(bd: BinaryData, name?: string): NbtLong {
         name ??= NbtLong.readName(bd);
         const data = bd.getInt64LE();
-        debugLogFromBinaryData(`LONG, name ${name}, data ${data}`);
+        debugLogFromBinaryData('LONG, name %s, data %d', name, data);
 
         return new NbtLong(data, name);
     }

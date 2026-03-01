@@ -9,7 +9,7 @@ export class NbtFloat extends NbtBase<number> {
     static fromBinaryData(bd: BinaryData, name?: string): NbtFloat {
         name ??= NbtFloat.readName(bd);
         const data = bd.getFloat();
-        debugLogFromBinaryData(`FLOAT, name ${name}, data ${data}`);
+        debugLogFromBinaryData('FLOAT, name %s, data %d', name, data);
 
         return new NbtFloat(data, name);
     }

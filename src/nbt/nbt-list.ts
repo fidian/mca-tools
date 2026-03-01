@@ -57,7 +57,7 @@ export class NbtList<T extends NbtBase<any>> extends NbtBase<T[]> {
         const index = parseInt(currentSegment, 10);
 
         if (isNaN(index)) {
-            debugLogFindChild(`LIST, name ${this.name}, subtype ${this.subtype}, path ${path}, segment ${currentSegment}, not a number`);
+            debugLogFindChild('LIST, name %s, subtype %s, path %s, segment %s, not a number', this.name, this.subtype, path, currentSegment);
 
             return;
         }
@@ -65,18 +65,18 @@ export class NbtList<T extends NbtBase<any>> extends NbtBase<T[]> {
         const result = this.data[index];
 
         if (!result) {
-            debugLogFindChild(`LIST, name ${this.name}, subtype ${this.subtype}, path ${path}, segment ${currentSegment}, no child found at index ${index}`);
+            debugLogFindChild('LIST, name %s, subtype %s, path %s, segment %s, no child found at index %d', this.name, this.subtype, path, currentSegment, index);
 
             return;
         }
 
         if (pathSegments.length) {
-            debugLogFindChild(`LIST, name ${this.name}, subtype ${this.subtype}, path ${path}, segment ${currentSegment}, recurse`);
+            debugLogFindChild('LIST, name %s, subtype %s, path %s, segment %s, recurse', this.name, this.subtype, path, currentSegment);
 
             return result.findChild<RESULT>(pathSegments.join('/'));
         }
 
-        debugLogFindChild(`LIST, name ${this.name}, subtype ${this.subtype}, path ${path}, segment ${currentSegment}, found`);
+        debugLogFindChild('LIST, name %s, subtype %s, path %s, segment %s, found', this.name, this.subtype, path, currentSegment);
 
         return result as unknown as RESULT;
     }

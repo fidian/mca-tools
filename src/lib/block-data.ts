@@ -42,8 +42,9 @@ function parseBlockData(
         if (bitsRead < 64) {
             // These extra bits can have any values. They are not
             // initialized before writing to disk.
-            bitData.getBits(64 - bitsRead);
-            debugLog(`Skipped ${64 - bitsRead} bits`);
+            const bitsToSkip = 64 - bitsRead;
+            bitData.getBits(bitsToSkip);
+            debugLog('Skipped %d bits', bitsToSkip);
         }
 
         bitsRead = 0;

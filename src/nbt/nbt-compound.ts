@@ -11,7 +11,7 @@ export class NbtCompound extends NbtBase<NbtBase<any>[]> {
     static fromBinaryData<T>(bd: BinaryData, name?: string): NbtCompound {
         name ??= NbtCompound.readName(bd);
         const data: NbtBase<T>[] = [];
-        debugLogFromBinaryData(`COMPOUND, name ${name}, starting`);
+        debugLogFromBinaryData('COMPOUND, name %s, starting', name);
 
         // Careful - this does not store the END tag
         let tag = Nbt.getTag(bd);
@@ -27,7 +27,7 @@ export class NbtCompound extends NbtBase<NbtBase<any>[]> {
             );
         }
 
-        debugLogFromBinaryData(`COMPOUND, name ${name}, finished`);
+        debugLogFromBinaryData('COMPOUND, name %s, finished', name);
 
         return new NbtCompound(data, name);
     }
