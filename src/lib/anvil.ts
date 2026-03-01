@@ -1,8 +1,8 @@
-import { BinaryData } from './binary-data';
-import { Chunk } from './chunk';
-import { Coords2d } from '../types/coords';
+import { BinaryData } from './binary-data.js';
+import { Chunk } from './chunk.js';
+import { Coords2d } from '../types/coords.js';
 import { inflate } from 'pako';
-import { Nbt } from '../nbt/nbt';
+import { Nbt } from '../nbt/nbt.js';
 
 type LocationEntry = {
     offset: number; // 3 bytes

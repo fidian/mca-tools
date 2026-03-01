@@ -1,11 +1,11 @@
-import { HasEntityData } from './has-entity-data';
-import { CustomName } from './mixins/custom-name';
-import { Lock } from './mixins/lock';
-import { Mixin } from './mixins/mixin';
-import { NbtCompound } from '../nbt/nbt-compound';
-import { NbtList } from '../nbt/nbt-list';
-import { NbtLong } from '../nbt/nbt-long';
-import { NbtString } from '../nbt/nbt-string';
+import { HasEntityData } from './has-entity-data.js';
+import { CustomName } from './mixins/custom-name.js';
+import { Lock } from './mixins/lock.js';
+import { Mixin } from './mixins/mixin.js';
+import { NbtCompound } from '../nbt/nbt-compound.js';
+import { NbtList } from '../nbt/nbt-list.js';
+import { NbtLong } from '../nbt/nbt-long.js';
+import { NbtString } from '../nbt/nbt-string.js';
 
 export class Barrel extends Mixin(
     HasEntityData,

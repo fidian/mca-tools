@@ -1,7 +1,7 @@
 import debug from 'debug';
-import { BinaryData } from '../lib/binary-data';
-import { NbtBase } from './nbt-base';
-import { NbtTagType } from './nbt-tag-type';
+import { BinaryData } from '../lib/binary-data.js';
+import { NbtBase } from './nbt-base.js';
+import { NbtTagType } from './nbt-tag-type.js';
 
 const debugLogFromBinaryData = debug('nbt:long:from-binary-data');
 

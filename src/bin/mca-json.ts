@@ -2,7 +2,7 @@
 
 import getStdin from 'get-stdin';
 import neodoc from 'neodoc';
-import { Anvil } from '../lib/anvil';
+import { Anvil } from '../lib/anvil.js';
 import { readFile, writeFile } from 'node:fs/promises';
 
 async function readInput(filename: string | undefined) {

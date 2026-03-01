@@ -2,9 +2,9 @@
 
 import debug from 'debug';
 import neodoc from 'neodoc';
-import { Anvil } from '../lib/anvil';
-import { Chunk } from '../lib/chunk';
-import { Sign } from '../block/sign';
+import { Anvil } from '../lib/anvil.js';
+import { Chunk } from '../lib/chunk.js';
+import { Sign } from '../block/sign.js';
 import { readFile } from 'node:fs/promises';
 
 interface SignInfo {

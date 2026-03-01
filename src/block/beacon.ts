@@ -1,8 +1,8 @@
-import { CustomName } from './mixins/custom-name';
-import { HasEntityData } from './has-entity-data';
-import { Lock } from './mixins/lock';
-import { Mixin } from './mixins/mixin';
-import { NbtString } from '../nbt/nbt-string';
+import { CustomName } from './mixins/custom-name.js';
+import { HasEntityData } from './has-entity-data.js';
+import { Lock } from './mixins/lock.js';
+import { Mixin } from './mixins/mixin.js';
+import { NbtString } from '../nbt/nbt-string.js';
 
 export class Beacon extends Mixin(
     HasEntityData,

@@ -1,17 +1,17 @@
-import { NbtBase } from '../nbt/nbt-base';
-import { NbtByteArray } from '../nbt/nbt-byte-array';
-import { NbtByte } from '../nbt/nbt-byte';
-import { NbtCompound } from '../nbt/nbt-compound';
-import { NbtDouble } from '../nbt/nbt-double';
-import { NbtFloat } from '../nbt/nbt-float';
-import { NbtIntArray } from '../nbt/nbt-int-array';
-import { NbtInt } from '../nbt/nbt-int';
-import { NbtList } from '../nbt/nbt-list';
-import { NbtLongArray } from '../nbt/nbt-long-array';
-import { NbtLong } from '../nbt/nbt-long';
-import { NbtShort } from '../nbt/nbt-short';
-import { NbtString } from '../nbt/nbt-string';
-import { SnbtData, SnbtToken } from './snbt-data';
+import { NbtBase } from '../nbt/nbt-base.js';
+import { NbtByteArray } from '../nbt/nbt-byte-array.js';
+import { NbtByte } from '../nbt/nbt-byte.js';
+import { NbtCompound } from '../nbt/nbt-compound.js';
+import { NbtDouble } from '../nbt/nbt-double.js';
+import { NbtFloat } from '../nbt/nbt-float.js';
+import { NbtIntArray } from '../nbt/nbt-int-array.js';
+import { NbtInt } from '../nbt/nbt-int.js';
+import { NbtList } from '../nbt/nbt-list.js';
+import { NbtLongArray } from '../nbt/nbt-long-array.js';
+import { NbtLong } from '../nbt/nbt-long.js';
+import { NbtShort } from '../nbt/nbt-short.js';
+import { NbtString } from '../nbt/nbt-string.js';
+import { SnbtData, SnbtToken } from './snbt-data.js';
 
 export const fromSnbtData: {
     [key: string]: (token: SnbtToken, snbtData: SnbtData) => NbtBase<any>;

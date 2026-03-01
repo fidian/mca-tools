@@ -6,19 +6,19 @@
  * This class helps manipulate the chunk data.
  */
 
-import { Block, BlockInstance } from '../block/block';
-import { BlockData } from './block-data';
-import { Coords2d, Coords3d } from '../types/coords';
-import { NbtBase } from '../nbt/nbt-base';
-import { NbtByte } from '../nbt/nbt-byte';
-import { NbtCompound } from '../nbt/nbt-compound';
-import { NbtInt } from '../nbt/nbt-int';
-import { NbtIntArray } from '../nbt/nbt-int-array';
-import { NbtList } from '../nbt/nbt-list';
-import { NbtLong } from '../nbt/nbt-long';
-import { NbtLongArray } from '../nbt/nbt-long-array';
-import { NbtString } from '../nbt/nbt-string';
-import { NbtTagType } from '../nbt/nbt-tag-type';
+import { Block, BlockInstance } from '../block/block.js';
+import { BlockData } from './block-data.js';
+import { Coords2d, Coords3d } from '../types/coords.js';
+import { NbtBase } from '../nbt/nbt-base.js';
+import { NbtByte } from '../nbt/nbt-byte.js';
+import { NbtCompound } from '../nbt/nbt-compound.js';
+import { NbtInt } from '../nbt/nbt-int.js';
+import { NbtIntArray } from '../nbt/nbt-int-array.js';
+import { NbtList } from '../nbt/nbt-list.js';
+import { NbtLong } from '../nbt/nbt-long.js';
+import { NbtLongArray } from '../nbt/nbt-long-array.js';
+import { NbtString } from '../nbt/nbt-string.js';
+import { NbtTagType } from '../nbt/nbt-tag-type.js';
 
 export class Chunk {
     private dataVersion: number;

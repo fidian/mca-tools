@@ -1,7 +1,7 @@
-import { HasEntityData } from './has-entity-data';
-import { NbtCompound } from '../nbt/nbt-compound';
-import { NbtList } from '../nbt/nbt-list';
-import { NbtString } from '../nbt/nbt-string';
+import { HasEntityData } from './has-entity-data.js';
+import { NbtCompound } from '../nbt/nbt-compound.js';
+import { NbtList } from '../nbt/nbt-list.js';
+import { NbtString } from '../nbt/nbt-string.js';
 
 export interface BannerPatternDefinition {
     asset_id: string;

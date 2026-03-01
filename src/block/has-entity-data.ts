@@ -1,6 +1,6 @@
-import { Generic } from './generic';
-import { Coords3d } from '../types/coords';
-import { NbtCompound } from '../nbt/nbt-compound';
+import { Generic } from './generic.js';
+import { Coords3d } from '../types/coords.js';
+import { NbtCompound } from '../nbt/nbt-compound.js';
 
 export class HasEntityData extends Generic {
     override entityData: NbtCompound;

@@ -1,7 +1,7 @@
-import { HasEntityData } from './has-entity-data';
-import { NbtByte } from '../nbt/nbt-byte';
-import { NbtList } from '../nbt/nbt-list';
-import { NbtString } from '../nbt/nbt-string';
+import { HasEntityData } from './has-entity-data.js';
+import { NbtByte } from '../nbt/nbt-byte.js';
+import { NbtList } from '../nbt/nbt-list.js';
+import { NbtString } from '../nbt/nbt-string.js';
 
 type SignText = [string, string, string, string];
 

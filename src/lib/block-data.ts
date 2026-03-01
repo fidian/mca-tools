@@ -1,10 +1,10 @@
 import debug from 'debug';
-import { BitData } from './bit-data';
-import { Coords3d } from '../types/coords';
-import { NbtCompound } from '../nbt/nbt-compound';
-import { NbtList } from '../nbt/nbt-list';
-import { NbtLongArray } from '../nbt/nbt-long-array';
-import { NbtString } from '../nbt/nbt-string';
+import { BitData } from './bit-data.js';
+import { Coords3d } from '../types/coords.js';
+import { NbtCompound } from '../nbt/nbt-compound.js';
+import { NbtList } from '../nbt/nbt-list.js';
+import { NbtLongArray } from '../nbt/nbt-long-array.js';
+import { NbtString } from '../nbt/nbt-string.js';
 
 const BLOCKS_PER_CHUNK = 16 * 16 * 16;
 const debugLog = debug('block-data');

@@ -1,5 +1,5 @@
 import debug from 'debug';
-import { SnbtData, SnbtTokenType } from './snbt-data';
+import { SnbtData, SnbtTokenType } from './snbt-data.js';
 
 const debugLog = debug('snbt:parse');
 

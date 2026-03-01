@@ -1,13 +1,13 @@
-import { Banner } from './banner';
-import { Barrel } from './barrel';
-import { Beacon } from './beacon';
-import { Bed } from './bed';
-import { Beehive } from './beehive';
-import { Bell } from './bell';
-import { Coords3d } from '../types/coords';
-import { Generic } from './generic';
-import { NbtCompound } from '../nbt/nbt-compound';
-import { Sign } from './sign';
+import { Banner } from './banner.js';
+import { Barrel } from './barrel.js';
+import { Beacon } from './beacon.js';
+import { Bed } from './bed.js';
+import { Beehive } from './beehive.js';
+import { Bell } from './bell.js';
+import { Coords3d } from '../types/coords.js';
+import { Generic } from './generic.js';
+import { NbtCompound } from '../nbt/nbt-compound.js';
+import { Sign } from './sign.js';
 
 export type BlockInstance = Banner | Barrel | Beacon | Bed | Beehive | Bell | Generic | Sign;
 

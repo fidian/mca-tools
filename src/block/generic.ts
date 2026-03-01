@@ -1,5 +1,5 @@
-import { Coords3d } from '../types/coords';
-import { NbtCompound } from '../nbt/nbt-compound';
+import { Coords3d } from '../types/coords.js';
+import { NbtCompound } from '../nbt/nbt-compound.js';
 
 export class Generic {
     constructor(

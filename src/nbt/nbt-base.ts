@@ -1,5 +1,5 @@
-import { BinaryData } from '../lib/binary-data';
-import { NbtTagType } from './nbt-tag-type';
+import { BinaryData } from '../lib/binary-data.js';
+import { NbtTagType } from './nbt-tag-type.js';
 
 export abstract class NbtBase<T> {
     static readName(bd: BinaryData) {

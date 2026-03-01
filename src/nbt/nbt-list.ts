@@ -1,8 +1,8 @@
 import debug from 'debug';
-import { BinaryData } from '../lib/binary-data';
-import { fromBinaryData } from './nbt';
-import { NbtBase } from './nbt-base';
-import { NbtTagType } from './nbt-tag-type';
+import { BinaryData } from '../lib/binary-data.js';
+import { fromBinaryData } from './nbt.js';
+import { NbtBase } from './nbt-base.js';
+import { NbtTagType } from './nbt-tag-type.js';
 
 const debugLogFromBinaryData = debug('nbt:list:from-binary-data');
 const debugLogFindChild = debug('nbt:list:find-child');

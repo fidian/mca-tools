@@ -1,5 +1,5 @@
 import debug from 'debug';
-import { NbtLongArray } from '../nbt/nbt-long-array';
+import { NbtLongArray } from '../nbt/nbt-long-array.js';
 
 const debugLog = debug('bit-data');
 

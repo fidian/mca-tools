@@ -1,8 +1,8 @@
-import { Coords3d } from '../types/coords';
-import { HasEntityData } from './has-entity-data';
-import { NbtCompound } from '../nbt/nbt-compound';
-import { NbtIntArray } from '../nbt/nbt-int-array';
-import { NbtList } from '../nbt/nbt-list';
+import { Coords3d } from '../types/coords.js';
+import { HasEntityData } from './has-entity-data.js';
+import { NbtCompound } from '../nbt/nbt-compound.js';
+import { NbtIntArray } from '../nbt/nbt-int-array.js';
+import { NbtList } from '../nbt/nbt-list.js';
 
 export class Beehive extends HasEntityData {
     bees(): NbtList<NbtCompound> | undefined {

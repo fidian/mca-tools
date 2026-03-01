@@ -4,7 +4,7 @@ import debug from 'debug';
 import getStdin from 'get-stdin';
 import neodoc from 'neodoc';
 import { inflate } from 'pako';
-import { Nbt } from '../nbt/nbt';
+import { Nbt } from '../nbt/nbt.js';
 import { readFile } from 'node:fs/promises';
 
 const debugLog = debug('mca-trim-chunks-without-signs');

@@ -2,7 +2,7 @@
 
 import debug from 'debug';
 import neodoc from 'neodoc';
-import { Anvil } from '../lib/anvil';
+import { Anvil } from '../lib/anvil.js';
 import { readFile, writeFile } from 'node:fs/promises';
 
 const debugLog = debug('mca-remove-chunks');
