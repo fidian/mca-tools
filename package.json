@@ -1,7 +1,17 @@
 {
     "name": "mca-json",
-    "version": "1.2.0",
+    "version": "1.2.1",
     "description": "Convert Minecraft MCA (Anvil files) and NBT into JSON and back, or modify directly in memory. Works on region files and player data.",
+    "keywords": [
+        "minecraft",
+        "mca",
+        "nbt",
+        "snbt",
+        "json",
+        "anvil",
+        "region",
+        "dat"
+    ],
     "bin": {
         "mca-chunks": "dist/bin/mca-chunks.js",
         "mca-json": "dist/bin/mca-json.js"
@@ -24,5 +34,14 @@
         "@types/node": "^25.3.3",
         "@types/pako": "^2.0.4",
         "typescript": "^5.9.3"
-    }
+    },
+    "author": "Tyler Akins <fidian@rumkin.com>",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/fidian/mca-json.git"
+    },
+    "bugs": {
+        "url": "https://github.com/fidian/mca-json/issues"
+    },
+    "homepage": "https://github.com/fidian/mca-json#readme"
 }
